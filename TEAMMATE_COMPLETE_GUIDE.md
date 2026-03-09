@@ -10,9 +10,8 @@
 
 ## 📋 Team Roles & Responsibilities
 
-### Role 1: Project Lead & Backend Developer
+### Role 1:Backend Developer
 **Responsibilities:**
-- Overall project coordination
 - Backend API development
 - Database schema design
 - Authentication & authorization
@@ -26,8 +25,9 @@
 
 ---
 
-### Role 2: Frontend Developer & UI/UX
+### Role 2: Project Lead & Frontend Developer & UI/UX
 **Responsibilities:**
+- Overall project coordination
 - React component development
 - User interface design
 - Responsive design

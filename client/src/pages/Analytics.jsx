@@ -162,6 +162,44 @@ export default function Analytics() {
           )}
         </div>
       </motion.section>
+
+      {/* Illustration Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/80 via-slate-950/90 to-slate-900/80 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.9)]"
+      >
+        <div className="flex flex-col lg:flex-row items-center gap-6">
+          <div className="flex-1 space-y-3">
+            <h3 className="text-lg font-semibold text-slate-50">Modern Notes Management</h3>
+            <p className="text-sm text-slate-400">
+              Track your notes performance with real-time analytics. Monitor downloads, views, and engagement metrics to understand what content resonates with students.
+            </p>
+            <div className="flex flex-wrap gap-2 pt-2">
+              <span className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-300 text-xs border border-purple-500/20">
+                Real-time tracking
+              </span>
+              <span className="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 text-xs border border-cyan-500/20">
+                Engagement metrics
+              </span>
+              <span className="px-3 py-1 rounded-full bg-pink-500/10 text-pink-300 text-xs border border-pink-500/20">
+                Performance insights
+              </span>
+            </div>
+          </div>
+          <div className="flex-1 max-w-md">
+            <img
+              src="/analytics-illustration.png"
+              alt="Modern notes management illustration"
+              className="w-full h-auto object-contain rounded-2xl"
+              onError={(e) => {
+                e.target.src = "https://images.undraw.co/illustrations/analytics-dark.svg";
+              }}
+            />
+          </div>
+        </div>
+      </motion.section>
     </div>
   );
 }

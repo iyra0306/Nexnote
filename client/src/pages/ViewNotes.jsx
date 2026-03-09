@@ -291,20 +291,36 @@ export default function ViewNotes() {
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            className="col-span-full flex flex-col items-center justify-center py-12 space-y-4"
+            className="col-span-full"
           >
-            <div className="h-16 w-16 rounded-2xl bg-slate-900/60 flex items-center justify-center">
-              <HiOutlineDocumentText className="text-3xl text-slate-500" />
-            </div>
-            <div className="text-center space-y-1">
-              <p className="text-sm font-medium text-slate-300">
-                {notes.length === 0 ? 'No notes yet' : 'No notes found'}
-              </p>
-              <p className="text-xs text-slate-500">
-                {notes.length === 0
-                  ? 'Upload some from the Upload Notes page'
-                  : 'Try adjusting your search or filters'}
-              </p>
+            <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/80 via-slate-950/90 to-slate-900/80 p-8 shadow-[0_24px_80px_rgba(15,23,42,0.9)]">
+              <div className="flex flex-col lg:flex-row items-center gap-8">
+                <div className="flex-1 text-center lg:text-left space-y-4">
+                  <div className="h-16 w-16 mx-auto lg:mx-0 rounded-2xl bg-slate-900/60 flex items-center justify-center">
+                    <HiOutlineDocumentText className="text-3xl text-slate-500" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-lg font-medium text-slate-300">
+                      {notes.length === 0 ? 'No notes yet' : 'No notes found'}
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      {notes.length === 0
+                        ? 'Upload some from the Upload Notes page to get started'
+                        : 'Try adjusting your search or filters to find what you need'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex-1 max-w-md">
+                  <img
+                    src="/studying-illustration.png"
+                    alt="Studying illustration"
+                    className="w-full h-auto object-contain rounded-2xl"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </motion.div>
         ) : (
