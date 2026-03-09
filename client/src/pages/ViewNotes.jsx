@@ -312,7 +312,7 @@ export default function ViewNotes() {
                 </div>
                 <div className="flex-1 max-w-md">
                   <img
-                    src="/studying-illustration.png"
+                    src="/studying illustration.png.png"
                     alt="Studying illustration"
                     className="w-full h-auto object-contain rounded-2xl"
                     onError={(e) => {

@@ -190,7 +190,7 @@ export default function Analytics() {
           </div>
           <div className="flex-1 max-w-md">
             <img
-              src="/analytics-illustration.png"
+              src="/Modern notes management illustration.png"
               alt="Modern notes management illustration"
               className="w-full h-auto object-contain rounded-2xl"
               onError={(e) => {
