@@ -39,9 +39,18 @@ export const signup = async (req, res) => {
       token,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Server error' });
+    const msg = isMongoConnectionError(error)
+      ? 'Database is not connected. Check server/.env and FIX_MONGODB.md, or use local MongoDB: MONGODB_URI=mongodb://127.0.0.1:27017/nexnote'
+      : (error.message || 'Server error');
+    res.status(500).json({ message: msg });
   }
 };
+
+function isMongoConnectionError(err) {
+  const name = err?.name || '';
+  const msg = (err?.message || '').toLowerCase();
+  return name === 'MongoServerSelectionError' || name === 'MongoNetworkError' || msg.includes('econnrefused') || msg.includes('querysrv');
+}
 
 /**
  * POST /api/auth/login - User login
@@ -73,6 +82,9 @@ export const login = async (req, res) => {
       token,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Server error' });
+    const msg = isMongoConnectionError(error)
+      ? 'Database is not connected. Check server/.env and FIX_MONGODB.md, or use local MongoDB: MONGODB_URI=mongodb://127.0.0.1:27017/nexnote'
+      : (error.message || 'Server error');
+    res.status(500).json({ message: msg });
   }
 };

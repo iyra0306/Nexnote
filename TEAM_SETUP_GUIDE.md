@@ -40,16 +40,16 @@ npm install
 ### Backend (.env file):
 Create `server/.env` file with:
 ```env
-PORT=5000
-MONGODB_URI=mongodb+srv://guptaiyra0042_db_user:Dhairya%401705@cluster0.mw3gcl6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-JWT_SECRET=neeti123
-CLIENT_URL=http://localhost:5000
+PORT=5001
+MONGODB_URI=mongodb://127.0.0.1:27017/nexnote
+JWT_SECRET=iyra
+CLIENT_URL=http://localhost:5001
 ```
 
 ### Frontend (.env file):
 Create `client/.env` file with:
 ```env
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=http://localhost:5001/api
 ```
 
 ---

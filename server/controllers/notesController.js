@@ -11,25 +11,54 @@ const __dirname = path.dirname(__filename);
  */
 export const uploadNote = async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-    const { title, subject, category, tags, department, semester, isImportantForExam, examTags, syllabusTopics, syllabusUnit } = req.body;
-    if (!title || !subject) return res.status(400).json({ message: 'Title and subject required' });
+    console.log('=== Upload Note Request ===');
+    console.log('User:', req.user?.email, 'Role:', req.user?.role);
+    console.log('File:', req.file ? req.file.filename : 'NO FILE');
+    console.log('Body:', req.body);
     
-    const note = await Note.create({
+    if (!req.file) {
+      console.log('ERROR: No file uploaded');
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    
+    const { title, subject, category, tags, department, semester, isImportantForExam, examTags, syllabusTopics, syllabusUnit } = req.body;
+    
+    if (!title || !subject) {
+      console.log('ERROR: Missing title or subject');
+      return res.status(400).json({ message: 'Title and subject required' });
+    }
+    
+    // Parse examTags if it's a JSON string
+    let parsedExamTags = [];
+    if (examTags) {
+      try {
+        parsedExamTags = typeof examTags === 'string' ? JSON.parse(examTags) : examTags;
+      } catch (e) {
+        parsedExamTags = examTags.split(',').map(tag => tag.trim());
+      }
+    }
+    
+    const noteData = {
       title,
       subject,
       department: department || req.user.department || 'Other',
       semester: semester || req.user.semester || 1,
       category: category || 'General',
-      tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
-      isImportantForExam: isImportantForExam === 'true',
-      examTags: examTags ? examTags.split(',').map(tag => tag.trim()) : [],
-      syllabusTopics: syllabusTopics ? syllabusTopics.split(',').map(topic => topic.trim()) : [],
+      tags: tags ? (typeof tags === 'string' ? tags.split(',').map(tag => tag.trim()) : tags) : [],
+      isImportantForExam: isImportantForExam === 'true' || isImportantForExam === true,
+      examTags: parsedExamTags,
+      syllabusTopics: syllabusTopics ? (typeof syllabusTopics === 'string' ? syllabusTopics.split(',').map(topic => topic.trim()) : syllabusTopics) : [],
       syllabusUnit: syllabusUnit ? parseInt(syllabusUnit) : undefined,
       fileURL: req.file.filename,
       fileSize: req.file.size,
       uploadedBy: req.user._id,
-    });
+    };
+    
+    console.log('Creating note with data:', noteData);
+    
+    const note = await Note.create(noteData);
+    
+    console.log('Note created successfully:', note._id);
     
     // Award points for uploading
     req.user.points += 10;
@@ -37,6 +66,9 @@ export const uploadNote = async (req, res) => {
     
     res.status(201).json(note);
   } catch (error) {
+    console.error('=== Upload Error ===');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ message: error.message || 'Server error' });
   }
 };

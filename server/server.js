@@ -18,6 +18,8 @@ connectDB();
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true }));
 app.use(express.json());
 
+app.get('/api/health', (req, res) => res.json({ ok: true, message: 'NEXNOTE server is running' }));
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/notes', notesRoutes);
@@ -25,10 +27,14 @@ app.use('/api/users', userRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Serve React app
-app.use(express.static(path.join(__dirname, '../client/dist')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+// Serve React app (static files first)
+const distPath = path.join(__dirname, '../client/dist');
+app.use(express.static(distPath));
+// SPA fallback: only for page routes (not /api, /uploads, or paths with a file extension)
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) return next();
+  if (path.extname(req.path)) return next(); // let static have already run; 404 if missing
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 // Global error handler

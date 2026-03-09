@@ -306,16 +306,20 @@ export default function UploadNotes() {
         >
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(168,85,247,0.15),transparent_50%),radial-gradient(circle_at_bottom,_rgba(236,72,153,0.2),transparent_55%)] opacity-80" />
           <div className="relative space-y-4">
-            <h2 className="text-lg font-semibold text-slate-50">Modern upload flow</h2>
+            <h2 className="text-lg font-semibold text-slate-50">Upload Notes Interface</h2>
             <p className="text-sm text-slate-400">
               Drag and drop your notes into a secure, backend-driven storage system. NEXNOTE keeps
               files organized while presenting them in a clean, student-friendly interface.
             </p>
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/60">
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/60 p-4">
               <img
-                src="https://images.undraw.co/illustrations/add-document-dark.svg"
-                alt="Upload illustration"
-                className="h-full w-full object-cover"
+                src="/upload illustration.png"
+                alt="Upload notes interface"
+                className="h-full w-full object-contain rounded-lg"
+                onError={(e) => {
+                  // Fallback to undraw illustration if custom image not found
+                  e.target.src = "https://images.undraw.co/illustrations/add-document-dark.svg";
+                }}
               />
             </div>
           </div>
