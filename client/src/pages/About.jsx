@@ -127,48 +127,113 @@ export default function About() {
         </div>
       </motion.section>
 
-      {/* Developer section */}
+      {/* Team section */}
       <motion.section
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.25 }}
         className="space-y-5"
       >
-        <h2 className="text-xl sm:text-2xl font-semibold text-slate-50">Creator</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold text-slate-50">Our Team</h2>
         
-        {/* Iyra - Full Stack Developer */}
-        <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-slate-900/90 via-slate-950/90 to-slate-900/90 p-6 sm:p-8 shadow-[0_24px_80px_rgba(15,23,42,0.9)] backdrop-blur-xl">
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4">
-              <div className="relative h-16 w-16 rounded-2xl bg-gradient-to-br from-cyan-400 via-sky-500 to-purple-500 shadow-[0_0_40px_rgba(56,189,248,0.8)]">
+        <div className="grid gap-5 lg:grid-cols-2">
+          {/* Iyra - Backend Developer */}
+          <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-slate-900/90 via-slate-950/90 to-slate-900/90 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.9)] backdrop-blur-xl">
+            <div className="flex items-start gap-4">
+              <div className="relative h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-500 shadow-[0_0_40px_rgba(168,85,247,0.8)]">
                 <div className="absolute inset-[2px] rounded-2xl bg-slate-950/80 backdrop-blur" />
                 <div className="relative flex h-full w-full items-center justify-center">
-                  <span className="text-2xl font-bold text-transparent bg-gradient-to-br from-cyan-400 to-purple-400 bg-clip-text">I</span>
+                  <span className="text-xl font-bold text-transparent bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text">I</span>
                 </div>
               </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.25em] text-cyan-400/80">
-                  Creator & Developer
+              <div className="flex-1">
+                <p className="text-xs uppercase tracking-[0.25em] text-purple-400/80">
+                  Backend Developer
                 </p>
-                <h3 className="text-xl font-bold text-slate-50">Iyra</h3>
-                <p className="text-xs text-slate-400">
-                  Full Stack Developer · Architect of NEXNOTE
+                <h3 className="text-lg font-bold text-slate-50">Iyra</h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  APIs, Authentication & Deployment
                 </p>
+                <div className="mt-3 space-y-1 text-xs text-slate-300">
+                  <p><span className="text-slate-500">Focus:</span> Express.js, MongoDB, JWT</p>
+                  <p><span className="text-slate-500">Email:</span> iyra0367.becse24@chitkara.edu.in</p>
+                </div>
               </div>
             </div>
-            <div className="space-y-1 text-xs sm:text-sm text-slate-300">
-              <p>
-                <span className="text-slate-500">Role:</span>{' '}
-                <span className="font-medium text-slate-100">Full Stack Developer</span>
-              </p>
-              <p>
-                <span className="text-slate-500">Skills:</span>{' '}
-                <span className="font-medium text-slate-100">MERN Stack, UI/UX Design</span>
-              </p>
-              <p>
-                <span className="text-slate-500">Project:</span>{' '}
-                <span className="font-medium text-slate-100">NEXNOTE - Complete LMS</span>
-              </p>
+          </div>
+
+          {/* Neeti - Project Lead & Frontend */}
+          <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-slate-900/90 via-slate-950/90 to-slate-900/90 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.9)] backdrop-blur-xl">
+            <div className="flex items-start gap-4">
+              <div className="relative h-14 w-14 rounded-2xl bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-500 shadow-[0_0_40px_rgba(56,189,248,0.8)]">
+                <div className="absolute inset-[2px] rounded-2xl bg-slate-950/80 backdrop-blur" />
+                <div className="relative flex h-full w-full items-center justify-center">
+                  <span className="text-xl font-bold text-transparent bg-gradient-to-br from-cyan-400 to-blue-400 bg-clip-text">N</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-xs uppercase tracking-[0.25em] text-cyan-400/80">
+                  Project Lead & Frontend
+                </p>
+                <h3 className="text-lg font-bold text-slate-50">Neeti</h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  React, UI/UX Design & Team Coordination
+                </p>
+                <div className="mt-3 space-y-1 text-xs text-slate-300">
+                  <p><span className="text-slate-500">Focus:</span> React, Design, Components</p>
+                  <p><span className="text-slate-500">Role:</span> Leadership & Frontend Development</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Manleen - Database & Integration */}
+          <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-slate-900/90 via-slate-950/90 to-slate-900/90 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.9)] backdrop-blur-xl">
+            <div className="flex items-start gap-4">
+              <div className="relative h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-400 via-green-500 to-teal-500 shadow-[0_0_40px_rgba(52,211,153,0.8)]">
+                <div className="absolute inset-[2px] rounded-2xl bg-slate-950/80 backdrop-blur" />
+                <div className="relative flex h-full w-full items-center justify-center">
+                  <span className="text-xl font-bold text-transparent bg-gradient-to-br from-emerald-400 to-teal-400 bg-clip-text">M</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-xs uppercase tracking-[0.25em] text-emerald-400/80">
+                  Database Administrator
+                </p>
+                <h3 className="text-lg font-bold text-slate-50">Manleen</h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  MongoDB, API Integration & File Uploads
+                </p>
+                <div className="mt-3 space-y-1 text-xs text-slate-300">
+                  <p><span className="text-slate-500">Focus:</span> Database, API Calls, Storage</p>
+                  <p><span className="text-slate-500">Role:</span> Data Management & Integration</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Eknoor - Testing & Documentation */}
+          <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-slate-900/90 via-slate-950/90 to-slate-900/90 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.9)] backdrop-blur-xl">
+            <div className="flex items-start gap-4">
+              <div className="relative h-14 w-14 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 shadow-[0_0_40px_rgba(251,146,60,0.8)]">
+                <div className="absolute inset-[2px] rounded-2xl bg-slate-950/80 backdrop-blur" />
+                <div className="relative flex h-full w-full items-center justify-center">
+                  <span className="text-xl font-bold text-transparent bg-gradient-to-br from-amber-400 to-red-400 bg-clip-text">E</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-xs uppercase tracking-[0.25em] text-amber-400/80">
+                  QA & Documentation
+                </p>
+                <h3 className="text-lg font-bold text-slate-50">Eknoor</h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Testing, Quality Assurance & Documentation
+                </p>
+                <div className="mt-3 space-y-1 text-xs text-slate-300">
+                  <p><span className="text-slate-500">Focus:</span> Testing, Guides, Bug Tracking</p>
+                  <p><span className="text-slate-500">Role:</span> Quality & Documentation</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

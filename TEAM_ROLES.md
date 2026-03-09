@@ -4,22 +4,20 @@
 
 ---
 
-## 📝 Role Assignment Template
+## 📝 Role Assignment
 
-Fill in the names of your teammates below:
-
-### Role 1: Project Lead & Backend Developer
-**Name**: _________________  
-**Email**: _________________  
-**GitHub**: _________________
+### Role 1: Backend Developer & Deployment Lead
+**Name**: Iyra  
+**Email**: iyra0367.becse24@chitkara.edu.in  
+**GitHub**: iyra0317
 
 **Primary Responsibilities:**
-- Overall project coordination
 - Backend API development (Express.js)
 - Database schema design (MongoDB)
 - Authentication & authorization (JWT)
 - Server deployment and maintenance
 - Code review and quality assurance
+- Team coordination
 
 **Key Files:**
 - `server/server.js`
@@ -37,18 +35,20 @@ Fill in the names of your teammates below:
 
 ---
 
-### Role 2: Frontend Developer & UI/UX Designer
-**Name**: _________________  
+### Role 2: Project Lead, Frontend Developer & UI/UX Designer
+**Name**: Neeti  
 **Email**: _________________  
 **GitHub**: _________________
 
 **Primary Responsibilities:**
+- Overall project coordination and leadership
 - React component development
 - User interface design and styling
 - Responsive design (mobile/tablet/desktop)
 - Frontend routing (React Router)
 - State management (Context API)
 - User experience optimization
+- Team communication and meetings
 
 **Key Files:**
 - `client/src/pages/`
@@ -67,7 +67,7 @@ Fill in the names of your teammates below:
 ---
 
 ### Role 3: Database Administrator & API Integration
-**Name**: _________________  
+**Name**: Manleen  
 **Email**: _________________  
 **GitHub**: _________________
 
@@ -96,7 +96,7 @@ Fill in the names of your teammates below:
 ---
 
 ### Role 4: Testing, Documentation & Quality Assurance
-**Name**: _________________  
+**Name**: Eknoor  
 **Email**: _________________  
 **GitHub**: _________________
 
@@ -233,17 +233,16 @@ git push origin main
 ## 📞 Contact Information
 
 ### Team Lead:
-**Name**: Iyra  
-**Email**: iyra0367.becse24@chitkara.edu.in  
-**Role**: Project Lead & Backend Developer
+**Name**: Neeti  
+**Email**: _________________  
+**Role**: Project Lead & Frontend Developer
 
 ### Team Members:
-Fill in after role assignment:
 
-1. **[Name]** - [Role] - [Email]
-2. **[Name]** - [Role] - [Email]
-3. **[Name]** - [Role] - [Email]
-4. **[Name]** - [Role] - [Email]
+1. **Iyra** - Backend Developer & Deployment - iyra0367.becse24@chitkara.edu.in
+2. **Neeti** - Project Lead & Frontend Developer - _________________
+3. **Manleen** - Database Administrator & Integration - _________________
+4. **Eknoor** - Testing & Documentation - _________________
 
 ---
 
