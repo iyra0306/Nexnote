@@ -73,7 +73,7 @@ export default function Dashboard() {
           <div className="pointer-events-none absolute -inset-6 rounded-3xl bg-cyan-500/10 blur-3xl" />
           <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-950/80 shadow-[0_24px_80px_rgba(15,23,42,0.9)]">
             <img
-              src="https://images.undraw.co/illustrations/online-learning-dark.svg"
+              src="studying illustration.png.png"
               alt="Studying illustration"
               className="h-full w-full object-cover"
             />
