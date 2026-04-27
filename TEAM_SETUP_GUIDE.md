@@ -1,44 +1,57 @@
 # NEXNOTE - Team Setup Guide
 
-## 🚀 For Your Teammates to Run the Project
+## � Team Members
+- **Iyra** - Backend Developer
+- **Neeti** - Project Lead & Frontend
+- **Manleen** - Database Administrator
+- **Eknoor** - QA & Documentation
 
-### Prerequisites
-- Node.js (v14 or higher) - Download from https://nodejs.org
-- Git - Download from https://git-scm.com
-- MongoDB Atlas account (or use the existing one)
+---
+
+## 🖥️ Prerequisites - Install These First
+
+| Software | Download Link | Purpose |
+|----------|--------------|---------|
+| Node.js (v14+) | https://nodejs.org | Run the server |
+| MongoDB | https://www.mongodb.com/try/download/community | Local database |
+| MongoDB Compass | https://www.mongodb.com/try/download/compass | View database visually |
+| Git | https://git-scm.com | Clone the project |
+
+### Verify Installations:
+```bash
+node --version     # Should show v14 or higher
+npm --version      # Should show 6 or higher
+git --version      # Should show git version
+```
 
 ---
 
 ## 📥 Step 1: Clone the Repository
 
 ```bash
-# Clone from GitHub
-git clone https://github.com/YOUR_USERNAME/nexnote.git
-cd nexnote
+git clone https://github.com/iyra0317/Nexnote.git
+cd Nexnote
 ```
 
 ---
 
 ## 🔧 Step 2: Install Dependencies
 
-### Install Backend Dependencies:
 ```bash
+# Install backend dependencies
 cd server
 npm install
-```
 
-### Install Frontend Dependencies:
-```bash
+# Install frontend dependencies
 cd ../client
 npm install
 ```
 
 ---
 
-## ⚙️ Step 3: Setup Environment Variables
+## ⚙️ Step 3: Create Environment Files
 
-### Backend (.env file):
-Create `server/.env` file with:
+### Backend - Create `server/.env`:
 ```env
 PORT=5001
 MONGODB_URI=mongodb://127.0.0.1:27017/nexnote
@@ -46,26 +59,55 @@ JWT_SECRET=iyra
 CLIENT_URL=http://localhost:5001
 ```
 
-### Frontend (.env file):
-Create `client/.env` file with:
+### Frontend - Create `client/.env`:
 ```env
 VITE_API_URL=http://localhost:5001/api
 ```
 
+> ⚠️ These files are NOT on GitHub for security. You must create them manually.
+
 ---
 
-## 🏗️ Step 4: Build Frontend
+## 🗄️ Step 4: Setup MongoDB
+
+### Start MongoDB Service (Windows):
+1. Open **Services** (search in Start menu)
+2. Find **MongoDB Server**
+3. Click **Start**
+
+OR run in terminal:
+```bash
+net start MongoDB
+```
+
+### Connect MongoDB Compass:
+1. Open **MongoDB Compass**
+2. Connection string: `mongodb://localhost:27017`
+3. Click **Connect**
+4. Create Database:
+   - Database Name: `nexnote`
+   - Collection Name: `users`
+   - Click **Create Database**
+
+---
+
+## 🏗️ Step 5: Build Frontend
 
 ```bash
 cd client
 npm run build
 ```
 
-This creates a production-ready build in `client/dist` folder.
+You should see:
+```
+✓ built in 5s
+dist/index.html
+dist/assets/index.js
+```
 
 ---
 
-## ▶️ Step 5: Start the Server
+## ▶️ Step 6: Start the Application
 
 ```bash
 cd server
@@ -74,35 +116,38 @@ npm start
 
 You should see:
 ```
-✅ Server running on port 5000
-✅ Open browser: http://localhost:5000/login
-✅ MongoDB Connected
+✅ Server running on port 5001
+✅ Open browser: http://localhost:5001/login
+✅ MongoDB Connected: 127.0.0.1
 ```
 
 ---
 
-## 🌐 Step 6: Access the Application
+## 🌐 Step 7: Open in Browser
 
-Open your browser and go to:
 ```
-http://localhost:5000/login
+http://localhost:5001/login
 ```
 
 ---
 
-## 👥 Test Accounts
+## � Step 8: Create Test Accounts
 
-### Student Account:
-- Email: `test@test.com`
-- Password: `test123`
+### Create Student Account:
+- Go to: http://localhost:5001/signup
+- Name: Your Name
+- Email: student@test.com
+- Password: test123
+- Role: **Student**
 - Department: CSE
 - Semester: 5
 
-### Teacher Account:
-- Email: `iyra0367.becse24@chitkara.edu.in`
-- Password: (your password)
-
-Or create new accounts using the Signup page!
+### Create Teacher Account:
+- Go to: http://localhost:5001/signup
+- Name: Your Name
+- Email: teacher@test.com
+- Password: test123
+- Role: **Teacher**
 
 ---
 
@@ -110,25 +155,27 @@ Or create new accounts using the Signup page!
 
 ### Port Already in Use:
 ```bash
-# Windows
-npx kill-port 5000
-
-# Or manually kill Node processes
-taskkill /F /IM node.exe
+npx kill-port 5001
+# Then restart: npm start
 ```
 
-### MongoDB Connection Issues:
-- Check if MongoDB URI is correct in `.env`
-- Ensure your IP is whitelisted in MongoDB Atlas
-- Try using VPN if on home WiFi
+### MongoDB Not Connecting:
+1. Check MongoDB service is running
+2. Open MongoDB Compass → connect to `mongodb://localhost:27017`
+3. If can't connect, restart MongoDB service
 
 ### Build Errors:
 ```bash
-# Clear node_modules and reinstall
 cd client
-rm -rf node_modules package-lock.json
+rm -rf node_modules
 npm install
 npm run build
+```
+
+### node_modules missing:
+```bash
+cd server && npm install
+cd ../client && npm install
 ```
 
 ---
@@ -136,43 +183,88 @@ npm run build
 ## 📁 Project Structure
 
 ```
-nexnote/
-├── client/              # React frontend
-│   ├── dist/           # Production build (after npm run build)
-│   ├── src/            # Source code
+Nexnote/
+├── client/                 # React Frontend
+│   ├── dist/              # Production build ← generated by npm run build
+│   ├── public/            # Images & static files
+│   │   ├── nexnote-logo.png
+│   │   ├── upload illustration.png
+│   │   ├── studying illustration.png.png
+│   │   └── Modern notes management illustration.png
+│   ├── src/
+│   │   ├── api/           # API calls (Axios)
+│   │   ├── components/    # Reusable components
+│   │   ├── context/       # Auth & Theme context
+│   │   ├── pages/         # 11 pages
+│   │   └── App.jsx        # Routes
+│   ├── .env               # ← Create this manually
 │   └── package.json
-├── server/             # Node.js backend
-│   ├── config/         # Database config
-│   ├── controllers/    # API logic
-│   ├── models/         # MongoDB models
-│   ├── routes/         # API routes
-│   ├── uploads/        # Uploaded files
-│   └── server.js       # Main server file
-└── README.md
+│
+├── server/                # Node.js + Express Backend
+│   ├── config/            # MongoDB connection
+│   ├── controllers/       # API logic
+│   ├── middleware/        # Auth (JWT) & Upload (Multer)
+│   ├── models/            # User, Note, Announcement
+│   ├── routes/            # API routes
+│   ├── uploads/           # Uploaded PDF/DOC files
+│   ├── .env               # ← Create this manually
+│   └── server.js          # Main server file
+│
+└── Documentation/
+    ├── README.md
+    ├── TEAMMATE_COMPLETE_GUIDE.md  ← Detailed guide
+    ├── TEAM_SETUP_GUIDE.md         ← This file
+    └── COLLEGE_PITCH_GUIDE.md
 ```
 
 ---
 
 ## 🎯 Features Available
 
-- ✅ User Authentication (Student/Teacher/Admin)
-- ✅ Department & Semester Organization
-- ✅ Upload Notes (PDF, DOC, DOCX)
-- ✅ View & Download Notes
-- ✅ Filter by Department, Semester, Exam Mode
-- ✅ Comments & Ratings
-- ✅ Favorites
-- ✅ Announcements
-- ✅ Analytics Dashboard
-- ✅ User Profiles
+### For Students:
+- ✅ Browse notes by department & semester
+- ✅ Exam preparation mode 🎯
+- ✅ Download notes (PDF, DOC, DOCX)
+- ✅ Add to favorites
+- ✅ Rate and comment on notes
+- ✅ View announcements
+
+### For Teachers:
+- ✅ Upload notes (PDF, DOC, DOCX - max 10MB)
+- ✅ Mark notes as exam important
+- ✅ Add exam tags (midterm, final, quick-revision)
+- ✅ Map to syllabus units
+- ✅ Create announcements
+- ✅ View analytics
+
+### For All:
+- ✅ User profiles
+- ✅ About page (team info)
+- ✅ Contact page
+
+---
+
+## 🔄 Git Workflow for Team
+
+```bash
+# Before starting work - get latest changes
+git pull origin main
+
+# After making changes
+git add .
+git commit -m "Your message here"
+git push origin main
+```
 
 ---
 
 ## 📞 Need Help?
 
-Contact: Iyra (iyra0367.becse24@chitkara.edu.in)
+**Contact Iyra**: iyra0367.becse24@chitkara.edu.in  
+**GitHub**: https://github.com/iyra0317/Nexnote
 
 ---
 
-**Last Updated**: 2026  
-**Version**: 2.0 (College Edition)
+**Last Updated**: February 2026  
+**Version**: 2.0 (Local MongoDB)  
+**Port**: 5001
