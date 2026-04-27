@@ -1,4 +1,5 @@
 import Announcement from '../models/Announcement.js';
+import { io } from '../server.js';
 
 /**
  * POST /api/announcements - Create announcement (admin/teacher only)
@@ -24,7 +25,23 @@ export const createAnnouncement = async (req, res) => {
     
     const populated = await Announcement.findById(announcement._id)
       .populate('createdBy', 'name email role');
-    
+
+    // 🔴 Real-time: notify all users about new announcement
+    const target = announcement.department === 'All' ? null : `dept_${announcement.department}`;
+    const event = {
+      id: populated._id,
+      title: populated.title,
+      priority: populated.priority,
+      department: populated.department,
+      createdBy: req.user.name,
+      message: `📢 New announcement: "${populated.title}" by ${req.user.name}`,
+    };
+    if (target) {
+      io.to(target).emit('newAnnouncement', event);
+    } else {
+      io.emit('newAnnouncement', event);
+    }
+
     res.status(201).json(populated);
   } catch (error) {
     res.status(500).json({ message: error.message || 'Server error' });

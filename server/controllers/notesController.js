@@ -2,6 +2,7 @@ import Note from '../models/Note.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { io } from '../server.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,6 +64,20 @@ export const uploadNote = async (req, res) => {
     // Award points for uploading
     req.user.points += 10;
     await req.user.save();
+
+    // 🔴 Real-time: notify all users in the department
+    io.to(`dept_${note.department}`).emit('newNote', {
+      id: note._id,
+      title: note.title,
+      subject: note.subject,
+      department: note.department,
+      semester: note.semester,
+      uploadedBy: req.user.name,
+      message: `📚 New note uploaded: "${note.title}" by ${req.user.name}`,
+    });
+
+    // Also notify everyone (for dashboard live count)
+    io.emit('noteUploaded', { total: await Note.countDocuments() });
     
     res.status(201).json(note);
   } catch (error) {

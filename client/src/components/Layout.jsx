@@ -14,8 +14,10 @@ import {
   HiXMark,
   HiOutlineMegaphone,
   HiOutlineEnvelope,
+  HiOutlineBell,
 } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
+import { useSocket } from '../context/SocketContext';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: HiOutlineHome, roles: ['student', 'teacher', 'admin'] },
@@ -34,6 +36,8 @@ export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const { onlineUsers, notifications, unreadCount, markAllRead } = useSocket();
 
   const handleLogout = () => {
     logout();
@@ -116,6 +120,10 @@ export default function Layout() {
             <p className="truncate text-sm font-medium text-slate-100">
               {user?.name || user?.email || 'Teacher'}
             </p>
+            <div className="mt-1 flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-xs text-green-400">{onlineUsers} online now</span>
+            </div>
           </div>
           <button
             onClick={handleLogout}
@@ -158,10 +166,66 @@ export default function Layout() {
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <div className="hidden text-xs text-slate-500 sm:block">
-                  <p className="font-medium text-slate-400">NEXNOTE</p>
-                  <p>Modern Notes Workspace</p>
+                {/* Online users indicator */}
+                <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-green-500/10 border border-green-500/20 px-3 py-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+                  <span className="text-xs text-green-400">{onlineUsers} online</span>
                 </div>
+
+                {/* Notification Bell */}
+                <div className="relative">
+                  <button
+                    onClick={() => { setShowNotifications(!showNotifications); markAllRead(); }}
+                    className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+                  >
+                    <HiOutlineBell className="text-xl text-slate-300" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-red-500 text-[10px] font-bold text-white">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Notification Dropdown */}
+                  <AnimatePresence>
+                    {showNotifications && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 top-12 z-50 w-80 rounded-2xl border border-white/10 bg-[#0f172a] shadow-[0_24px_80px_rgba(0,0,0,0.8)] overflow-hidden"
+                      >
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+                          <p className="text-sm font-semibold text-slate-100">Notifications</p>
+                          <button onClick={() => setShowNotifications(false)}>
+                            <HiXMark className="text-slate-400 hover:text-slate-200" />
+                          </button>
+                        </div>
+                        <div className="max-h-72 overflow-y-auto divide-y divide-white/5">
+                          {notifications.length === 0 ? (
+                            <div className="px-4 py-6 text-center text-xs text-slate-500">
+                              No notifications yet
+                            </div>
+                          ) : (
+                            notifications.map((n) => (
+                              <div key={n.id} className="flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors">
+                                <span className="text-lg mt-0.5">
+                                  {n.type === 'note' ? '📚' : '📢'}
+                                </span>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-medium text-slate-200 truncate">{n.title}</p>
+                                  <p className="text-xs text-slate-500 mt-0.5">{n.message}</p>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white shadow-[0_0_30px_rgba(99,102,241,0.8)]">
                   <span className="text-sm font-bold">
                     {(user?.name || user?.email || 'N')[0].toUpperCase()}
