@@ -1,5 +1,5 @@
 import Announcement from '../models/Announcement.js';
-import { io } from '../server.js';
+import { getIO } from '../socket.js';
 
 /**
  * POST /api/announcements - Create announcement (admin/teacher only)
@@ -11,6 +11,10 @@ export const createAnnouncement = async (req, res) => {
     if (!title || !content) {
       return res.status(400).json({ message: 'Title and content are required' });
     }
+    if (title.trim().length > 200)
+      return res.status(400).json({ message: 'Title must be under 200 characters' });
+    if (content.trim().length > 2000)
+      return res.status(400).json({ message: 'Content must be under 2000 characters' });
     
     const announcement = await Announcement.create({
       title,
@@ -27,19 +31,16 @@ export const createAnnouncement = async (req, res) => {
       .populate('createdBy', 'name email role');
 
     // 🔴 Real-time: notify all users about new announcement
-    const target = announcement.department === 'All' ? null : `dept_${announcement.department}`;
-    const event = {
-      id: populated._id,
-      title: populated.title,
-      priority: populated.priority,
-      department: populated.department,
-      createdBy: req.user.name,
-      message: `📢 New announcement: "${populated.title}" by ${req.user.name}`,
-    };
-    if (target) {
-      io.to(target).emit('newAnnouncement', event);
-    } else {
-      io.emit('newAnnouncement', event);
+    const io = getIO();
+    if (io) {
+      const target = announcement.department === 'All' ? null : `dept_${announcement.department}`;
+      const event = {
+        id: populated._id, title: populated.title, priority: populated.priority,
+        department: populated.department, createdBy: req.user.name,
+        message: `📢 New announcement: "${populated.title}" by ${req.user.name}`,
+      };
+      if (target) io.to(target).emit('newAnnouncement', event);
+      else io.emit('newAnnouncement', event);
     }
 
     res.status(201).json(populated);

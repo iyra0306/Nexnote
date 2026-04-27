@@ -1,16 +1,11 @@
 import express from 'express';
 import { protect } from '../middleware/auth.js';
 import {
-  getProfile,
-  updateProfile,
-  changePassword,
-  toggleFavorite,
-  getFavorites,
+  getProfile, updateProfile, changePassword, toggleFavorite, getFavorites,
 } from '../controllers/userController.js';
 
 const router = express.Router();
 
-// All routes require authentication
 router.use(protect);
 
 router.get('/profile', getProfile);

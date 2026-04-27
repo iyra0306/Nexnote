@@ -4,42 +4,42 @@ import { useAuth } from './AuthContext';
 
 const SocketContext = createContext(null);
 
-const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001';
+// Derive socket URL from API URL - strip /api suffix
+const SOCKET_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
 
 export function SocketProvider({ children }) {
   const { user } = useAuth();
   const socketRef = useRef(null);
   const [onlineUsers, setOnlineUsers] = useState(0);
   const [notifications, setNotifications] = useState([]);
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    // Connect to socket server
-    socketRef.current = io(SOCKET_URL, { transports: ['websocket', 'polling'] });
-
-    const socket = socketRef.current;
+    // Connect socket
+    const socket = io(SOCKET_URL, {
+      transports: ['websocket', 'polling'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
+    socketRef.current = socket;
 
     socket.on('connect', () => {
-      console.log('🔌 Socket connected:', socket.id);
-
-      // Join personal room
+      setConnected(true);
       if (user?._id) socket.emit('joinRoom', user._id);
-
-      // Join department room
       if (user?.department) socket.emit('joinDepartment', user.department);
     });
 
-    // Online users count
+    socket.on('disconnect', () => setConnected(false));
+
     socket.on('onlineUsers', (count) => setOnlineUsers(count));
 
-    // New note uploaded notification
     socket.on('newNote', (data) => {
       setNotifications((prev) => [
         { id: Date.now(), type: 'note', ...data, read: false },
-        ...prev.slice(0, 9), // keep last 10
+        ...prev.slice(0, 9),
       ]);
     });
 
-    // New announcement notification
     socket.on('newAnnouncement', (data) => {
       setNotifications((prev) => [
         { id: Date.now(), type: 'announcement', ...data, read: false },
@@ -47,31 +47,24 @@ export function SocketProvider({ children }) {
       ]);
     });
 
-    // Live note count update
-    socket.on('noteUploaded', (data) => {
-      // Trigger re-fetch in components listening
-      socket.emit('refreshNotes', data);
-    });
-
     return () => {
       socket.disconnect();
+      socketRef.current = null;
     };
-  }, [user]);
+  }, [user?._id, user?.department]);  // reconnect if user changes
 
-  const markAllRead = () => {
+  const markAllRead = () =>
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
 
   const clearNotifications = () => setNotifications([]);
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <SocketContext.Provider value={{
       socket: socketRef.current,
       onlineUsers,
       notifications,
-      unreadCount,
+      unreadCount: notifications.filter((n) => !n.read).length,
+      connected,
       markAllRead,
       clearNotifications,
     }}>
@@ -80,4 +73,8 @@ export function SocketProvider({ children }) {
   );
 }
 
-export const useSocket = () => useContext(SocketContext);
+export const useSocket = () => {
+  const ctx = useContext(SocketContext);
+  if (!ctx) throw new Error('useSocket must be used within SocketProvider');
+  return ctx;
+};

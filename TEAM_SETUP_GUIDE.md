@@ -174,5 +174,5 @@ Contact: Iyra (iyra0367.becse24@chitkara.edu.in)
 
 ---
 
-**Last Updated**: 2024  
+**Last Updated**: 2026  
 **Version**: 2.0 (College Edition)

@@ -2,6 +2,16 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
+// Decode JWT payload without verifying (client-side only for expiry check)
+const getTokenExpiry = (token) => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000; // convert to ms
+  } catch {
+    return null;
+  }
+};
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -10,17 +20,28 @@ export function AuthProvider({ children }) {
     const stored = localStorage.getItem('nexnote_user');
     const token = localStorage.getItem('token');
     if (stored && token) {
-      setUser(JSON.parse(stored));
+      // Check if token is expired
+      const expiry = getTokenExpiry(token);
+      if (expiry && Date.now() > expiry) {
+        // Token expired - clear storage
+        localStorage.removeItem('nexnote_user');
+        localStorage.removeItem('token');
+      } else {
+        try {
+          setUser(JSON.parse(stored));
+        } catch {
+          localStorage.removeItem('nexnote_user');
+        }
+      }
     }
     setLoading(false);
   }, []);
 
   const login = (userData) => {
+    const { token, ...userInfo } = userData;
     setUser(userData);
     localStorage.setItem('nexnote_user', JSON.stringify(userData));
-    if (userData.token) {
-      localStorage.setItem('token', userData.token);
-    }
+    if (token) localStorage.setItem('token', token);
   };
 
   const logout = () => {
@@ -30,9 +51,9 @@ export function AuthProvider({ children }) {
   };
 
   const updateUser = (userData) => {
-    const updatedUser = { ...user, ...userData };
-    setUser(updatedUser);
-    localStorage.setItem('nexnote_user', JSON.stringify(updatedUser));
+    const updated = { ...user, ...userData };
+    setUser(updated);
+    localStorage.setItem('nexnote_user', JSON.stringify(updated));
   };
 
   return (
