@@ -36,7 +36,7 @@ export default function Signup() {
         role === 'student' ? semester : undefined,
         role === 'student' ? rollNumber : undefined);
       login(data);
-      addToast('Account created! Welcome to NEXNOTE 🎉', 'success');
+      addToast('Account created! Welcome to NEXNOTE.', 'success');
       navigate('/dashboard');
     } catch (err) {
       addToast(err.response?.data?.message || 'Signup failed', 'error');
@@ -58,7 +58,7 @@ export default function Signup() {
 
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-center p-12 relative space-y-8">
-        <img src="/nexnote-logo.png" alt="NEXNOTE" className="h-12 w-auto" onError={(e) => e.target.style.display='none'} />
+        <img src="/nexnote-logo.png" alt="NEXNOTE" className="h-10 w-auto max-w-[200px] object-contain" onError={(e) => e.target.style.display='none'} />
         <div className="space-y-4">
           <h1 className="text-4xl font-bold text-slate-50">
             Join <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">NEXNOTE</span>
@@ -70,14 +70,16 @@ export default function Signup() {
         <div className="space-y-3">
           <p className="text-xs uppercase tracking-widest text-slate-600">Choose your role</p>
           {[
-            { r: 'student', emoji: '🎓', title: 'Student', desc: 'Access notes, download, rate and comment' },
-            { r: 'teacher', emoji: '👨‍🏫', title: 'Teacher', desc: 'Upload notes, post announcements, view analytics' },
-          ].map(({ r, emoji, title, desc }) => (
+            { r: 'student', title: 'Student', desc: 'Access notes, download, rate and comment' },
+            { r: 'teacher', title: 'Teacher', desc: 'Upload notes, post announcements, view analytics' },
+          ].map(({ r, title, desc }) => (
             <motion.div key={r} whileHover={{ scale: 1.02 }}
               className={`rounded-2xl border p-4 cursor-pointer transition-all ${role === r ? 'border-purple-500/50 bg-purple-500/10' : 'border-white/5 bg-white/5 hover:border-white/10'}`}
               onClick={() => setRole(r)}>
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{emoji}</span>
+                <div className={`h-8 w-8 rounded-lg flex items-center justify-center text-sm font-bold ${role === r ? 'bg-purple-500 text-white' : 'bg-white/10 text-slate-400'}`}>
+                  {r === 'student' ? 'S' : 'T'}
+                </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-100">{title}</p>
                   <p className="text-xs text-slate-500">{desc}</p>
@@ -93,12 +95,12 @@ export default function Signup() {
       <div className="flex w-full lg:w-1/2 items-center justify-center px-6 py-12 overflow-y-auto">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
           <div className="mb-6 flex justify-center lg:hidden">
-            <img src="/nexnote-logo.png" alt="NEXNOTE" className="h-12 w-auto" onError={(e) => e.target.style.display='none'} />
+            <img src="/nexnote-logo.png" alt="NEXNOTE" className="h-10 w-auto max-w-[180px] object-contain" onError={(e) => e.target.style.display='none'} />
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-8 shadow-[0_32px_100px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
             <div className="mb-6 space-y-1">
-              <h2 className="text-2xl font-bold text-slate-50">Create account ✨</h2>
+              <h2 className="text-2xl font-bold text-slate-50">Create account</h2>
               <p className="text-sm text-slate-400">Join thousands of students on NEXNOTE</p>
             </div>
 
@@ -141,7 +143,7 @@ export default function Signup() {
                   {['student', 'teacher'].map((r) => (
                     <button key={r} type="button" onClick={() => setRole(r)}
                       className={`py-3 rounded-xl text-sm font-medium capitalize transition-all ${role === r ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-purple-300 border-2 border-purple-500/40' : 'bg-slate-950/40 text-slate-400 border border-white/10 hover:bg-white/5'}`}>
-                      {r === 'student' ? '🎓' : '👨‍🏫'} {r}
+                      {r}
                     </button>
                   ))}
                 </div>

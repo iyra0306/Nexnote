@@ -84,15 +84,15 @@ export default function Dashboard() {
               </span>
               {notifications.length > 0 && (
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs text-purple-400">
-                  🔔 {notifications.length} new
+                  {notifications.length} new
                 </span>
               )}
             </div>
             <h1 className="text-3xl font-bold text-slate-50">
               {getGreeting()},{' '}
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
-                {user?.name?.split(' ')[0] || 'there'}!
-              </span> 👋
+                {user?.name?.split(' ')[0] || 'there'}
+              </span>
             </h1>
             <p className="text-slate-400 text-sm max-w-lg">
               {user?.role === 'teacher'
@@ -102,16 +102,16 @@ export default function Dashboard() {
             <div className="flex flex-wrap gap-2 pt-1">
               {user?.department && (
                 <span className="rounded-full bg-indigo-500/15 border border-indigo-500/20 px-3 py-1 text-xs text-indigo-300">
-                  🏫 {user.department}
+                  {user.department}
                 </span>
               )}
               {user?.semester && (
                 <span className="rounded-full bg-purple-500/15 border border-purple-500/20 px-3 py-1 text-xs text-purple-300">
-                  📅 Semester {user.semester}
+                  Semester {user.semester}
                 </span>
               )}
               <span className="rounded-full bg-pink-500/15 border border-pink-500/20 px-3 py-1 text-xs text-pink-300 capitalize">
-                🎓 {user?.role || 'student'}
+                {user?.role || 'student'}
               </span>
             </div>
           </div>
@@ -218,7 +218,7 @@ export default function Dashboard() {
                         <span className="rounded-full bg-indigo-500/10 px-2 py-0.5 text-xs text-indigo-400">{note.department}</span>
                       )}
                       {note.isImportantForExam && (
-                        <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs text-amber-400">🎯 Exam</span>
+                        <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs text-amber-400">Exam</span>
                       )}
                     </div>
                   </div>
@@ -290,7 +290,7 @@ export default function Dashboard() {
               <p className="text-sm font-semibold text-amber-300">Study Tip</p>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Use <span className="text-amber-300 font-medium">Exam Mode 🎯</span> in View Notes to filter only exam-important content. Perfect for last-minute revision!
+              Use <span className="text-amber-300 font-medium">Exam Mode</span> in View Notes to filter only exam-important content. Perfect for last-minute revision.
             </p>
             <button onClick={() => navigate('/notes')}
               className="mt-3 text-xs text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1">

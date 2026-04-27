@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { HiOutlineEnvelope, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2';
+import { HiOutlineEnvelope, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeSlash,
+  HiOutlineDocumentText, HiOutlineAcademicCap, HiOutlineMegaphone, HiOutlineBolt } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../api/api';
 import { useToast } from '../components/Toast';
 
 const features = [
-  { emoji: '📚', text: 'Organized by Department & Semester' },
-  { emoji: '🎯', text: 'Exam Preparation Mode' },
-  { emoji: '📢', text: 'Real-time Announcements' },
-  { emoji: '⚡', text: 'Instant Download & Access' },
+  { icon: HiOutlineDocumentText, text: 'Organized by Department & Semester' },
+  { icon: HiOutlineAcademicCap, text: 'Exam Preparation Mode' },
+  { icon: HiOutlineMegaphone, text: 'Real-time Announcements' },
+  { icon: HiOutlineBolt, text: 'Instant Download & Access' },
 ];
 
 export default function Login() {
@@ -28,7 +29,7 @@ export default function Login() {
     try {
       const { data } = await authAPI.login(email, password);
       login(data);
-      addToast('Welcome back! 🎉', 'success');
+      addToast('Welcome back!', 'success');
       navigate('/dashboard');
     } catch (err) {
       addToast(err.response?.data?.message || 'Login failed', 'error');
@@ -80,7 +81,7 @@ export default function Login() {
             {features.map((f, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 + i * 0.1 }}
                 className="flex items-center gap-2.5 rounded-2xl border border-white/5 bg-white/5 px-4 py-3 backdrop-blur">
-                <span className="text-xl">{f.emoji}</span>
+                <f.icon className="text-lg text-purple-400 flex-shrink-0" />
                 <span className="text-xs text-slate-300">{f.text}</span>
               </motion.div>
             ))}
@@ -102,7 +103,7 @@ export default function Login() {
 
           <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-8 shadow-[0_32px_100px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
             <div className="mb-8 space-y-1">
-              <h2 className="text-2xl font-bold text-slate-50">Welcome back 👋</h2>
+              <h2 className="text-2xl font-bold text-slate-50">Welcome back</h2>
               <p className="text-sm text-slate-400">Sign in to continue to your workspace</p>
             </div>
 

@@ -210,9 +210,12 @@ export default function Layout() {
                           ) : (
                             notifications.map((n) => (
                               <div key={n.id} className="flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors">
-                                <span className="text-lg mt-0.5">
-                                  {n.type === 'note' ? '📚' : '📢'}
-                                </span>
+                                <div className={`mt-0.5 h-7 w-7 flex-shrink-0 rounded-lg flex items-center justify-center ${n.type === 'note' ? 'bg-indigo-500/15' : 'bg-pink-500/15'}`}>
+                                  {n.type === 'note'
+                                    ? <HiOutlineDocumentText className="text-sm text-indigo-400" />
+                                    : <HiOutlineMegaphone className="text-sm text-pink-400" />
+                                  }
+                                </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-xs font-medium text-slate-200 truncate">{n.title}</p>
                                   <p className="text-xs text-slate-500 mt-0.5">{n.message}</p>
