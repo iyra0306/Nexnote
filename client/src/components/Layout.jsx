@@ -2,250 +2,199 @@ import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  HiOutlineHome,
-  HiOutlineCloudArrowUp,
-  HiOutlineDocumentText,
-  HiOutlineHeart,
-  HiOutlineChartBar,
-  HiOutlineInformationCircle,
-  HiOutlineArrowRightOnRectangle,
-  HiOutlineUser,
-  HiBars3,
-  HiXMark,
-  HiOutlineMegaphone,
-  HiOutlineEnvelope,
-  HiOutlineBell,
+  HiOutlineHome, HiOutlineCloudArrowUp, HiOutlineDocumentText,
+  HiOutlineHeart, HiOutlineChartBar, HiOutlineInformationCircle,
+  HiOutlineArrowRightOnRectangle, HiOutlineUser, HiBars3, HiXMark,
+  HiOutlineMegaphone, HiOutlineEnvelope, HiOutlineTrophy,
+  HiOutlineFire, HiOutlineStar,
 } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
-import { useSocket } from '../context/SocketContext';
 
 const navItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: HiOutlineHome, roles: ['student', 'teacher', 'admin'] },
-  { path: '/upload', label: 'Upload Notes', icon: HiOutlineCloudArrowUp, roles: ['teacher', 'admin'] },
-  { path: '/notes', label: 'View Notes', icon: HiOutlineDocumentText, roles: ['student', 'teacher', 'admin'] },
-  { path: '/favorites', label: 'Favorites', icon: HiOutlineHeart, roles: ['student', 'teacher', 'admin'] },
-  { path: '/analytics', label: 'Analytics', icon: HiOutlineChartBar, roles: ['teacher', 'admin'] },
-  { path: '/announcements', label: 'Announcements', icon: HiOutlineMegaphone, roles: ['student', 'teacher', 'admin'] },
-  { path: '/profile', label: 'Profile', icon: HiOutlineUser, roles: ['student', 'teacher', 'admin'] },
-  { path: '/about', label: 'About', icon: HiOutlineInformationCircle, roles: ['student', 'teacher', 'admin'] },
-  { path: '/contact', label: 'Contact', icon: HiOutlineEnvelope, roles: ['student', 'teacher', 'admin'] },
+  { path: '/dashboard',     label: 'Home Base',     icon: HiOutlineHome,              roles: ['student','teacher','admin'], xp: '🏠' },
+  { path: '/upload',        label: 'Upload Quest',  icon: HiOutlineCloudArrowUp,      roles: ['teacher','admin'],           xp: '⚔️' },
+  { path: '/notes',         label: 'Note Library',  icon: HiOutlineDocumentText,      roles: ['student','teacher','admin'], xp: '📚' },
+  { path: '/favorites',     label: 'Saved Loot',    icon: HiOutlineHeart,             roles: ['student','teacher','admin'], xp: '💎' },
+  { path: '/analytics',     label: 'Stats Board',   icon: HiOutlineChartBar,          roles: ['teacher','admin'],           xp: '📊' },
+  { path: '/announcements', label: 'Guild Chat',    icon: HiOutlineMegaphone,         roles: ['student','teacher','admin'], xp: '📣' },
+  { path: '/profile',       label: 'My Character',  icon: HiOutlineUser,              roles: ['student','teacher','admin'], xp: '🧙' },
+  { path: '/about',         label: 'About',         icon: HiOutlineInformationCircle, roles: ['student','teacher','admin'], xp: 'ℹ️' },
+  { path: '/contact',       label: 'Contact',       icon: HiOutlineEnvelope,          roles: ['student','teacher','admin'], xp: '✉️' },
 ];
 
-export default function Layout() {
-  const location = useLocation();
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const { onlineUsers, notifications, unreadCount, markAllRead } = useSocket();
+const RANK_LEVELS = [
+  { min: 0,   label: 'Novice',    color: 'text-slate-400',  icon: '🌱' },
+  { min: 50,  label: 'Scholar',   color: 'text-cyan-400',   icon: '📖' },
+  { min: 150, label: 'Adept',     color: 'text-blue-400',   icon: '⚡' },
+  { min: 300, label: 'Expert',    color: 'text-purple-400', icon: '🔮' },
+  { min: 500, label: 'Master',    color: 'text-amber-400',  icon: '👑' },
+  { min: 999, label: 'Legend',    color: 'text-rose-400',   icon: '🌟' },
+];
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+function getRank(points = 0) {
+  return [...RANK_LEVELS].reverse().find(r => points >= r.min) || RANK_LEVELS[0];
+}
+
+export default function Layout() {
+  const location  = useLocation();
+  const { user, logout } = useAuth();
+  const navigate  = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const points = user?.points || 0;
+  const rank   = getRank(points);
+  const nextRank = RANK_LEVELS.find(r => r.min > points) || RANK_LEVELS[RANK_LEVELS.length - 1];
+  const xpPct  = Math.min(100, Math.round((points / nextRank.min) * 100));
+
+  const handleLogout = () => { logout(); navigate('/login'); };
 
   return (
-    <div className="flex min-h-screen bg-[#020617] text-slate-100">
-      {/* Mobile sidebar backdrop */}
+    <div className="flex min-h-screen bg-[#0a0a1a] text-slate-100">
+
+      {/* Mobile backdrop */}
       <AnimatePresence>
         {sidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
-          />
+            className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden" />
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
-      <aside className={`fixed lg:relative z-50 w-64 border-r border-white/5 bg-gradient-to-b from-[#0f172a] via-[#1e1b4b] to-[#0f172a] backdrop-blur-xl shadow-[0_0_60px_rgba(99,102,241,0.2)] flex flex-col h-screen transition-transform duration-300 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      }`}>
-        <div className="flex items-center justify-between gap-3 px-6 py-6 border-b border-white/5">
+      {/* ── SIDEBAR ── */}
+      <aside className={`fixed lg:relative z-50 w-64 flex flex-col h-screen transition-transform duration-300
+        border-r border-amber-500/10 bg-gradient-to-b from-[#0d0d20] via-[#0f0f25] to-[#0d0d20]
+        shadow-[4px_0_40px_rgba(245,158,11,0.08)]
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+
+        {/* Logo */}
+        <div className="flex items-center justify-between px-5 py-5 border-b border-amber-500/10">
           <div className="flex items-center gap-3">
-            <img 
-              src="/nexnote-logo.png" 
-              alt="NEXNOTE Logo" 
-              className="h-12 w-auto object-contain rounded-lg"
-              onError={(e) => {
-                // Fallback to icon if image doesn't load
-                e.target.style.display = 'none';
-                e.target.nextElementSibling.style.display = 'flex';
-              }}
-            />
-            <div className="hidden relative h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-[0_0_30px_rgba(99,102,241,0.8)] animate-pulse">
-              <span className="text-2xl font-black text-white">N</span>
+            <div className="relative">
+              <img src="/nexnote-logo.png" alt="NEXNOTE" className="h-10 w-auto object-contain rounded-xl"
+                onError={(e) => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }} />
+              <div className="hidden h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-gold">
+                <span className="text-lg font-black text-white">N</span>
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-black tracking-widest text-transparent bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text">NEXNOTE</p>
+              <p className="text-[10px] text-amber-600/70 tracking-wider">STUDY RPG</p>
             </div>
           </div>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 rounded-lg hover:bg-white/5 transition-colors"
-          >
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1.5 rounded-lg hover:bg-white/5">
             <HiXMark className="text-xl text-slate-400" />
           </button>
         </div>
 
-        <nav className="flex-1 px-4 py-4 space-y-1">
-          {navItems.filter(item => item.roles.includes(user?.role || 'student')).map((item) => {
-            const Icon = item.icon;
+        {/* Player Card */}
+        <div className="mx-3 mt-4 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-gold text-white font-bold text-sm flex-shrink-0">
+              {(user?.name || 'U')[0].toUpperCase()}
+              <span className="absolute -bottom-1 -right-1 text-sm">{rank.icon}</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-slate-100 truncate">{user?.name || 'Player'}</p>
+              <p className={`text-[10px] font-semibold ${rank.color}`}>{rank.label}</p>
+            </div>
+            <div className="ml-auto text-right flex-shrink-0">
+              <p className="text-xs font-black text-amber-400">{points}</p>
+              <p className="text-[10px] text-amber-600">XP</p>
+            </div>
+          </div>
+          {/* XP Bar */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-[10px] text-slate-500">
+              <span>XP Progress</span>
+              <span>{xpPct}%</span>
+            </div>
+            <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
+              <motion.div initial={{ width: 0 }} animate={{ width: `${xpPct}%` }} transition={{ duration: 1.2, ease: 'easeOut' }}
+                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
+            </div>
+            <p className="text-[10px] text-slate-600">Next: {nextRank.label} ({nextRank.min} XP)</p>
+          </div>
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
+          {navItems.filter(i => i.roles.includes(user?.role || 'student')).map((item) => {
+            const Icon   = item.icon;
             const active = location.pathname === item.path;
             return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setSidebarOpen(false)}
-                className={`group relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+              <Link key={item.path} to={item.path} onClick={() => setSidebarOpen(false)}
+                className={`group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   active
-                    ? 'bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/10 text-indigo-300 shadow-[0_0_30px_rgba(99,102,241,0.4)] border border-indigo-500/30'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-white/5'
-                }`}
-              >
-                <span
-                  className={`absolute inset-y-1 left-1 w-1 rounded-full bg-gradient-to-b from-indigo-400 via-purple-400 to-pink-400 transition-transform ${
-                    active ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'
-                  }`}
-                />
-                <Icon className="relative z-10 text-lg" />
-                <span className="relative z-10">{item.label}</span>
+                    ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/10 text-amber-300 border border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.15)]'
+                    : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'
+                }`}>
+                {active && (
+                  <motion.span layoutId="nav-pill"
+                    className="absolute inset-y-1 left-0 w-1 rounded-full bg-gradient-to-b from-amber-400 to-orange-500" />
+                )}
+                <span className="text-base">{item.xp}</span>
+                <Icon className="text-base flex-shrink-0" />
+                <span className="flex-1">{item.label}</span>
+                {active && <HiOutlineFire className="text-amber-400 text-sm animate-pulse" />}
               </Link>
             );
           })}
         </nav>
 
-        <div className="px-4 py-4 border-t border-white/5">
-          <div className="mb-2 rounded-xl bg-white/5 px-4 py-3 backdrop-blur">
-            <p className="text-xs text-slate-400">Signed in as</p>
-            <p className="truncate text-sm font-medium text-slate-100">
-              {user?.name || user?.email || 'Teacher'}
-            </p>
-            <div className="mt-1 flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-xs text-green-400">{onlineUsers} online now</span>
-            </div>
+        {/* Bottom */}
+        <div className="px-3 py-4 border-t border-amber-500/10 space-y-2">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5">
+            <HiOutlineTrophy className="text-amber-400 text-sm" />
+            <span className="text-xs text-slate-400">Daily Streak</span>
+            <span className="ml-auto text-xs font-bold text-amber-400">🔥 {user?.streak || 1}</span>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-gradient-to-r from-red-500/10 to-pink-500/10 px-4 py-2.5 text-sm font-medium text-red-300 transition-all hover:border-red-400/60 hover:from-red-500/20 hover:to-pink-500/20 hover:text-red-200"
-          >
-            <HiOutlineArrowRightOnRectangle className="text-lg" />
-            <span>Logout</span>
+          <button onClick={handleLogout}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-400 transition-all hover:bg-red-500/20 hover:text-red-300">
+            <HiOutlineArrowRightOnRectangle className="text-base" />
+            Logout
           </button>
         </div>
       </aside>
 
-      {/* Main content with top navbar and animated page area */}
+      {/* ── MAIN ── */}
       <div className="relative flex-1 overflow-hidden">
-        {/* Background gradient + glow accents */}
+        {/* Background */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-20 top-10 h-96 w-96 rounded-full bg-indigo-500/10 blur-3xl" />
-          <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-purple-500/10 blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-pink-500/5 blur-3xl" />
+          <div className="absolute -left-20 top-10 h-96 w-96 rounded-full bg-amber-500/5 blur-3xl" />
+          <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-purple-500/5 blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-orange-500/3 blur-3xl" />
         </div>
 
         <div className="relative flex h-full flex-col">
-          {/* Top navbar */}
-          <header className="sticky top-0 z-20 border-b border-white/5 bg-[#020617]/70 backdrop-blur-xl">
-            <div className="flex items-center justify-between px-4 sm:px-8 py-4">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-lg hover:bg-white/5 transition-colors"
-              >
+          {/* Top bar */}
+          <header className="sticky top-0 z-20 border-b border-amber-500/10 bg-[#0a0a1a]/80 backdrop-blur-xl">
+            <div className="flex items-center justify-between px-4 sm:px-8 py-3">
+              <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg hover:bg-white/5">
                 <HiBars3 className="text-2xl text-slate-400" />
               </button>
-              <div className="space-y-0.5">
-                <p className="text-xs uppercase tracking-[0.25em] text-slate-500">
-                  Dashboard
-                </p>
-                <p className="text-sm text-slate-400">
-                  Welcome back,{' '}
-                  <span className="font-semibold text-slate-100">
-                    {user?.name || user?.email?.split('@')[0] || 'Teacher'}
-                  </span>
-                </p>
+              <div className="flex items-center gap-3">
+                <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1">
+                  <HiOutlineStar className="text-amber-400 text-xs" />
+                  <span className="text-xs text-amber-400 font-semibold">{points} XP</span>
+                </div>
+                <div className={`hidden sm:flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/5 px-3 py-1`}>
+                  <span className="text-sm">{rank.icon}</span>
+                  <span className={`text-xs font-bold ${rank.color}`}>{rank.label}</span>
+                </div>
               </div>
               <div className="flex items-center gap-3">
-                {/* Online users indicator */}
-                <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-green-500/10 border border-green-500/20 px-3 py-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-xs text-green-400">{onlineUsers} online</span>
-                </div>
-
-                {/* Notification Bell */}
-                <div className="relative">
-                  <button
-                    onClick={() => { setShowNotifications(!showNotifications); markAllRead(); }}
-                    className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors"
-                  >
-                    <HiOutlineBell className="text-xl text-slate-300" />
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-red-500 text-[10px] font-bold text-white">
-                        {unreadCount}
-                      </span>
-                    )}
-                  </button>
-
-                  {/* Notification Dropdown */}
-                  <AnimatePresence>
-                    {showNotifications && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute right-0 top-12 z-50 w-80 rounded-2xl border border-white/10 bg-[#0f172a] shadow-[0_24px_80px_rgba(0,0,0,0.8)] overflow-hidden"
-                      >
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-                          <p className="text-sm font-semibold text-slate-100">Notifications</p>
-                          <button onClick={() => setShowNotifications(false)}>
-                            <HiXMark className="text-slate-400 hover:text-slate-200" />
-                          </button>
-                        </div>
-                        <div className="max-h-72 overflow-y-auto divide-y divide-white/5">
-                          {notifications.length === 0 ? (
-                            <div className="px-4 py-6 text-center text-xs text-slate-500">
-                              No notifications yet
-                            </div>
-                          ) : (
-                            notifications.map((n) => (
-                              <div key={n.id} className="flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors">
-                                <div className={`mt-0.5 h-7 w-7 flex-shrink-0 rounded-lg flex items-center justify-center ${n.type === 'note' ? 'bg-indigo-500/15' : 'bg-pink-500/15'}`}>
-                                  {n.type === 'note'
-                                    ? <HiOutlineDocumentText className="text-sm text-indigo-400" />
-                                    : <HiOutlineMegaphone className="text-sm text-pink-400" />
-                                  }
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-medium text-slate-200 truncate">{n.title}</p>
-                                  <p className="text-xs text-slate-500 mt-0.5">{n.message}</p>
-                                </div>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white shadow-[0_0_30px_rgba(99,102,241,0.8)]">
-                  <span className="text-sm font-bold">
-                    {(user?.name || user?.email || 'N')[0].toUpperCase()}
-                  </span>
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-gold">
+                  <span className="text-sm font-bold">{(user?.name || 'U')[0].toUpperCase()}</span>
                 </div>
               </div>
             </div>
           </header>
 
-          {/* Animated page content */}
-          <motion.main
-            key={location.pathname}
-            initial={{ opacity: 0, x: 60, y: 10 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="flex-1 overflow-auto px-6 py-6 sm:px-8 sm:py-8"
-          >
+          {/* Page content */}
+          <motion.main key={location.pathname}
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="flex-1 overflow-auto px-4 py-6 sm:px-8 sm:py-8">
             <Outlet />
           </motion.main>
         </div>

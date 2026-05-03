@@ -2,71 +2,112 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom color scheme for unique look */
 :root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --secondary: #8b5cf6;
-  --accent: #ec4899;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
+  --xp-gold: #f59e0b;
+  --xp-purple: #8b5cf6;
+  --xp-cyan: #06b6d4;
+  --xp-green: #10b981;
+  --xp-pink: #ec4899;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #0f172a;
-}
-
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0a0a1a; }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #6366f1, #8b5cf6);
+  background: linear-gradient(180deg, #f59e0b, #8b5cf6);
   border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #4f46e5, #7c3aed);
+/* ── Animated XP bar ── */
+@keyframes xp-fill {
+  from { width: 0%; }
+  to   { width: var(--xp-width, 60%); }
+}
+.xp-bar { animation: xp-fill 1.2s cubic-bezier(.4,0,.2,1) forwards; }
+
+/* ── Floating particles ── */
+@keyframes float-up {
+  0%   { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-60px) scale(0); opacity: 0; }
+}
+.particle { animation: float-up 1.5s ease-out forwards; }
+
+/* ── Pulse glow ── */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(245,158,11,0.4); }
+  50%       { box-shadow: 0 0 40px rgba(245,158,11,0.8), 0 0 60px rgba(245,158,11,0.3); }
+}
+.glow-gold { animation: pulse-glow 2s ease-in-out infinite; }
+
+/* ── Badge shine ── */
+@keyframes badge-shine {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.badge-shine {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  background-size: 200% auto;
+  animation: badge-shine 2s linear infinite;
 }
 
-/* Smooth animations */
-* {
-  scroll-behavior: smooth;
+/* ── Level up flash ── */
+@keyframes level-flash {
+  0%   { opacity: 0; transform: scale(0.5); }
+  50%  { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(1.5); }
 }
+.level-flash { animation: level-flash 0.8s ease-out forwards; }
 
-/* Custom gradient text */
+/* ── Gradient text ── */
 .gradient-text {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #8b5cf6 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-gold {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Glassmorphism effect */
+/* ── Glass card ── */
 .glass {
-  background: rgba(15, 23, 42, 0.7);
+  background: rgba(10, 10, 26, 0.7);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.15);
 }
 
-/* Animated gradient border */
-@keyframes gradient-rotate {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+/* ── Quest card hover ── */
+.quest-card:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.15);
 }
 
-.animated-border {
-  background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #6366f1);
-  background-size: 300% 300%;
-  animation: gradient-rotate 3s ease infinite;
+/* ── Rank badge ── */
+@keyframes rank-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.rank-ring { animation: rank-rotate 8s linear infinite; }
+
+/* ── Star burst ── */
+@keyframes star-burst {
+  0%   { transform: scale(0) rotate(0deg); opacity: 1; }
+  100% { transform: scale(2) rotate(180deg); opacity: 0; }
+}
+.star-burst { animation: star-burst 0.6s ease-out forwards; }
+
+/* ── Smooth scroll ── */
+* { scroll-behavior: smooth; }
+
+/* ── Neon border ── */
+.neon-border-gold {
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2), inset 0 0 10px rgba(245, 158, 11, 0.05);
+}
+.neon-border-purple {
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.2), inset 0 0 10px rgba(139, 92, 246, 0.05);
 }
