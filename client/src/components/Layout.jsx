@@ -9,6 +9,7 @@ import {
   HiOutlineFire, HiOutlineStar,
 } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
+import { AvatarDisplay } from './AvatarBuilder';
 
 const navItems = [
   { path: '/dashboard',     label: 'Home Base',     icon: HiOutlineHome,              roles: ['student','teacher','admin'], xp: '🏠' },
@@ -89,8 +90,12 @@ export default function Layout() {
         {/* Player Card */}
         <div className="mx-3 mt-4 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-4">
           <div className="flex items-center gap-3 mb-3">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-gold text-white font-bold text-sm flex-shrink-0">
-              {(user?.name || 'U')[0].toUpperCase()}
+            <div className="relative flex-shrink-0">
+              <AvatarDisplay
+                avatarStr={typeof window !== 'undefined' ? localStorage.getItem('nexnote_avatar') || '' : ''}
+                name={user?.name || 'U'}
+                size="md"
+              />
               <span className="absolute -bottom-1 -right-1 text-sm">{rank.icon}</span>
             </div>
             <div className="min-w-0">
@@ -183,8 +188,12 @@ export default function Layout() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-gold">
-                  <span className="text-sm font-bold">{(user?.name || 'U')[0].toUpperCase()}</span>
+                <div className="flex-shrink-0">
+                  <AvatarDisplay
+                    avatarStr={typeof window !== 'undefined' ? localStorage.getItem('nexnote_avatar') || '' : ''}
+                    name={user?.name || 'U'}
+                    size="sm"
+                  />
                 </div>
               </div>
             </div>

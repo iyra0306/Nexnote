@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { HiOutlinePencil, HiOutlineKey, HiOutlineTrophy, HiOutlineFire, HiOutlineStar } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
+import AvatarBuilder, { AvatarDisplay } from '../components/AvatarBuilder';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
@@ -34,8 +35,10 @@ export default function Profile() {
   const { addToast }         = useToast();
   const [editing, setEditing]               = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
+  const [editingAvatar, setEditingAvatar]   = useState(false);
   const [formData, setFormData]             = useState({ name: user?.name || '', bio: user?.bio || '', avatar: user?.avatar || '' });
   const [passwordData, setPasswordData]     = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [localAvatar, setLocalAvatar]       = useState(() => localStorage.getItem('nexnote_avatar') || '');
 
   const points = user?.points || 0;
   const streak = user?.streak || 1;
@@ -93,10 +96,13 @@ export default function Profile() {
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           {/* Avatar */}
           <div className="relative flex-shrink-0">
-            <div className="relative h-24 w-24 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-[0_0_40px_rgba(245,158,11,0.6)] flex items-center justify-center">
-              <span className="text-4xl font-black text-white">{(user?.name || 'U')[0].toUpperCase()}</span>
-              <span className="absolute -bottom-2 -right-2 text-2xl">{rank.icon}</span>
+            <div className="relative cursor-pointer" onClick={() => setEditingAvatar(!editingAvatar)}>
+              <AvatarDisplay avatarStr={localAvatar} name={user?.name || 'U'} size="xl" />
+              <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-amber-500 border-2 border-[#0a0a1a] flex items-center justify-center text-sm shadow-gold">
+                ✏️
+              </div>
             </div>
+            <p className="text-[10px] text-amber-600 text-center mt-2 font-semibold">Click to edit</p>
           </div>
 
           {/* Info */}
@@ -153,6 +159,29 @@ export default function Profile() {
           </div>
         </div>
       </motion.div>
+
+      {/* Avatar Builder Panel */}
+      {editingAvatar && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-3xl border border-amber-500/20 bg-[#0d0d20] p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-black text-amber-400">🎨 Customize Avatar</h2>
+            <button onClick={() => setEditingAvatar(false)}
+              className="text-xs font-black text-slate-500 hover:text-slate-300 border border-white/10 bg-white/5 px-3 py-1.5 rounded-xl">
+              ✕ Close
+            </button>
+          </div>
+          <AvatarBuilder value={localAvatar} onChange={(val) => {
+            setLocalAvatar(val);
+            localStorage.setItem('nexnote_avatar', val);
+          }} />
+          <motion.button onClick={() => setEditingAvatar(false)}
+            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+            className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 py-3 text-sm font-black text-white shadow-[0_4px_20px_rgba(245,158,11,0.4)]">
+            ✅ Save Avatar
+          </motion.button>
+        </motion.div>
+      )}
 
       {/* Badges */}
       <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
