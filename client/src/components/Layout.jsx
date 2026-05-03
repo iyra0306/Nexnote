@@ -10,6 +10,7 @@ import {
 } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import { AvatarDisplay } from './AvatarBuilder';
+import NexusAI from './NexusAI';
 
 const navItems = [
   { path: '/dashboard',     label: 'Home Base',     icon: HiOutlineHome,              roles: ['student','teacher','admin'], xp: '🏠' },
@@ -208,6 +209,9 @@ export default function Layout() {
           </motion.main>
         </div>
       </div>
+
+      {/* NEXUS AI - Floating on all pages */}
+      <NexusAI />
     </div>
   );
 }

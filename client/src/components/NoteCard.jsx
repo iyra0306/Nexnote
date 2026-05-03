@@ -8,6 +8,7 @@ import {
 import StarRating from './StarRating';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from './Toast';
+import NoteMessage from './NoteMessage';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
@@ -187,6 +188,11 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
             <HiOutlineTrash className="text-sm" />
           </button>
         )}
+      </div>
+
+      {/* Message Uploader */}
+      <div className="mb-2">
+        <NoteMessage note={localNote} />
       </div>
 
       {/* Comments toggle */}
