@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -42,6 +42,19 @@ export default function Layout() {
   const { user, logout } = useAuth();
   const navigate  = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [avatarStr, setAvatarStr] = useState(() => localStorage.getItem('nexnote_avatar') || '');
+
+  // Listen for avatar changes
+  useEffect(() => {
+    const handler = () => setAvatarStr(localStorage.getItem('nexnote_avatar') || '');
+    window.addEventListener('storage', handler);
+    // Also poll every 2s in case same-tab update
+    const interval = setInterval(() => {
+      const current = localStorage.getItem('nexnote_avatar') || '';
+      setAvatarStr(prev => prev !== current ? current : prev);
+    }, 2000);
+    return () => { window.removeEventListener('storage', handler); clearInterval(interval); };
+  }, []);
 
   const points = user?.points || 0;
   const rank   = getRank(points);
@@ -93,7 +106,7 @@ export default function Layout() {
           <div className="flex items-center gap-3 mb-3">
             <div className="relative flex-shrink-0">
               <AvatarDisplay
-                avatarStr={typeof window !== 'undefined' ? localStorage.getItem('nexnote_avatar') || '' : ''}
+                avatarStr={avatarStr}
                 name={user?.name || 'U'}
                 size="md"
               />
@@ -191,7 +204,7 @@ export default function Layout() {
               <div className="flex items-center gap-3">
                 <div className="flex-shrink-0">
                   <AvatarDisplay
-                    avatarStr={typeof window !== 'undefined' ? localStorage.getItem('nexnote_avatar') || '' : ''}
+                    avatarStr={avatarStr}
                     name={user?.name || 'U'}
                     size="sm"
                   />

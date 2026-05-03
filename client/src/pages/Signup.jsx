@@ -58,7 +58,10 @@ export default function Signup() {
         role === 'student' ? rollNumber : undefined,
       );
       // Store avatar in localStorage for now (can be saved to profile later)
-      if (avatar) localStorage.setItem('nexnote_avatar', avatar);
+      if (avatar) {
+        localStorage.setItem('nexnote_avatar', avatar);
+        window.dispatchEvent(new Event('storage'));
+      }
       login(data);
       addToast('🎉 Character created! Welcome to NEXNOTE!', 'success');
       navigate('/dashboard');
