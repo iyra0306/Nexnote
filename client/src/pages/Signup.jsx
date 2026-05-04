@@ -94,7 +94,7 @@ export default function Signup() {
 
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative">
-        <img src="/nexnote-logo.png" alt="NEXNOTE" className="h-10 w-auto" onError={(e) => e.target.style.display='none'} />
+        <img src="/nexnote-logo.png" alt="NEXNOTE" className="h-16 w-auto max-w-[220px] object-contain" onError={(e) => e.target.style.display='none'} />
 
         <div className="space-y-8">
           <div className="space-y-3">
@@ -152,7 +152,7 @@ export default function Signup() {
 
           {/* Mobile logo */}
           <div className="mb-6 flex justify-center lg:hidden">
-            <img src="/nexnote-logo.png" alt="NEXNOTE" className="h-10 w-auto" onError={(e) => e.target.style.display='none'} />
+            <img src="/nexnote-logo.png" alt="NEXNOTE" className="h-20 w-auto max-w-[240px] object-contain" onError={(e) => e.target.style.display='none'} />
           </div>
 
           {/* Step indicator */}
