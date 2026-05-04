@@ -8,10 +8,10 @@ import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 const MESSAGE_TYPES = [
-  { id: 'suggestion',   label: '💡 Suggestion',   desc: 'Suggest improvements to the note' },
-  { id: 'correction',   label: '✏️ Correction',   desc: 'Point out an error or mistake' },
-  { id: 'question',     label: '❓ Question',      desc: 'Ask the uploader a question' },
-  { id: 'appreciation', label: '🙏 Appreciation', desc: 'Thank the uploader' },
+  { id: 'suggestion',   label: '💡 Suggestion',   desc: 'Suggest improvements' },
+  { id: 'correction',   label: '✏️ Correction',   desc: 'Point out an error' },
+  { id: 'question',     label: '❓ Question',      desc: 'Ask the uploader' },
+  { id: 'appreciation', label: '🙏 Thanks',        desc: 'Thank the uploader' },
 ];
 
 export default function NoteMessage({ note }) {
@@ -20,40 +20,54 @@ export default function NoteMessage({ note }) {
   const [message, setMessage] = useState('');
   const [sent, setSent]       = useState(false);
   const [loading, setLoading] = useState(false);
-  const { user }    = useAuth();
+  const { user }     = useAuth();
   const { addToast } = useToast();
 
-  // Don't show if user is the uploader
-  if (!note?.uploadedBy || user?._id === note.uploadedBy._id || user?.email === note.uploadedBy.email) return null;
+  // Check if current user is the uploader - convert both to string for safe comparison
+  const uploaderId    = note?.uploadedBy?._id?.toString() || note?.uploadedBy?.toString() || '';
+  const currentUserId = user?._id?.toString() || '';
+  const isUploader    = uploaderId && currentUserId && uploaderId === currentUserId;
+
+  // Don't show button if user IS the uploader or if no uploader info
+  if (!note?.uploadedBy || isUploader) return null;
+
+  const uploaderName = note.uploadedBy?.name || note.uploadedBy?.email || 'the uploader';
 
   const handleSend = async (e) => {
     e.preventDefault();
     if (!message.trim()) return;
     setLoading(true);
-
     try {
-      // Post as a comment with a special prefix to identify it as a message
-      const token = localStorage.getItem('token');
-      const msgText = `[${type.toUpperCase()}] ${message}`;
-      await axios.post(`${API_URL}/notes/${note._id}/comments`,
+      const token   = localStorage.getItem('token');
+      const msgText = `[${type.toUpperCase()}] ${message.trim()}`;
+      await axios.post(
+        `${API_URL}/notes/${note._id}/comments`,
         { text: msgText },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setSent(true);
-      addToast('✉️ Message sent to uploader! +2 XP', 'success');
-      setTimeout(() => { setSent(false); setOpen(false); setMessage(''); setType('suggestion'); }, 2000);
+      addToast('✉️ Message sent! +2 XP', 'success');
+      setTimeout(() => {
+        setSent(false);
+        setOpen(false);
+        setMessage('');
+        setType('suggestion');
+      }, 2000);
     } catch (err) {
       addToast(err.response?.data?.message || 'Failed to send message', 'error');
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
       {/* Trigger Button */}
-      <motion.button onClick={() => setOpen(true)}
-        whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-        className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-3 py-2 text-xs font-bold text-indigo-400 hover:bg-indigo-500/20 transition-colors"
-        title="Message the uploader">
+      <motion.button
+        onClick={() => setOpen(true)}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-3 py-2 text-xs font-bold text-indigo-400 hover:bg-indigo-500/20 transition-colors">
         <HiOutlineChatBubbleLeftRight className="text-sm" />
         Message Uploader
       </motion.button>
@@ -63,23 +77,30 @@ export default function NoteMessage({ note }) {
         {open && (
           <>
             {/* Backdrop */}
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setOpen(false)}
-              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" />
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => !loading && setOpen(false)}
+              className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm" />
 
-            {/* Modal */}
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+            {/* Modal Box */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-amber-500/20 bg-[#0d0d20] p-6 shadow-[0_32px_100px_rgba(0,0,0,0.8)]">
+              className="fixed left-1/2 top-1/2 z-[70] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-amber-500/20 bg-[#0d0d20] p-6 shadow-[0_32px_100px_rgba(0,0,0,0.9)]">
 
+              {/* Success State */}
               {sent ? (
-                <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
                   className="flex flex-col items-center gap-4 py-6 text-center">
-                  <div className="text-6xl">✉️</div>
+                  <span className="text-6xl">✉️</span>
                   <HiOutlineCheckCircle className="text-5xl text-green-400" />
                   <div>
                     <p className="text-lg font-black text-slate-50">Message Sent!</p>
-                    <p className="text-sm text-slate-400 mt-1">The uploader will see your feedback</p>
+                    <p className="text-sm text-slate-400 mt-1">
+                      {uploaderName} will see your feedback in the comments
+                    </p>
                     <p className="text-xs text-amber-400 font-bold mt-2">+2 XP Earned! 🏆</p>
                   </div>
                 </motion.div>
@@ -93,25 +114,30 @@ export default function NoteMessage({ note }) {
                         Message Uploader
                       </h3>
                       <p className="text-xs text-slate-400 mt-1">
-                        To: <span className="text-amber-400 font-bold">{note.uploadedBy?.name || note.uploadedBy?.email}</span>
-                        {' '}• Re: <span className="text-slate-300 font-semibold">"{note.title}"</span>
+                        To: <span className="text-amber-400 font-bold">{uploaderName}</span>
+                        {' '}• <span className="text-slate-500">"{note.title}"</span>
                       </p>
                     </div>
-                    <button onClick={() => setOpen(false)} className="p-1.5 rounded-lg hover:bg-white/5 text-slate-500 hover:text-slate-300">
+                    <button
+                      onClick={() => setOpen(false)}
+                      className="p-1.5 rounded-lg hover:bg-white/5 text-slate-500 hover:text-slate-300 transition-colors">
                       <HiXMark className="text-xl" />
                     </button>
                   </div>
 
                   <form onSubmit={handleSend} className="space-y-4">
-                    {/* Message Type */}
+                    {/* Type selector */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-amber-700">📌 Message Type</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-amber-700">
+                        📌 Message Type
+                      </label>
                       <div className="grid grid-cols-2 gap-2">
                         {MESSAGE_TYPES.map(t => (
-                          <button key={t.id} type="button" onClick={() => setType(t.id)}
+                          <button
+                            key={t.id} type="button" onClick={() => setType(t.id)}
                             className={`rounded-xl p-3 text-left transition-all border ${
                               type === t.id
-                                ? 'border-amber-500/40 bg-amber-500/15 shadow-[0_0_12px_rgba(245,158,11,0.15)]'
+                                ? 'border-amber-500/40 bg-amber-500/15'
                                 : 'border-white/5 bg-slate-950/40 hover:border-amber-500/20'
                             }`}>
                             <p className="text-xs font-black text-slate-200">{t.label}</p>
@@ -121,35 +147,44 @@ export default function NoteMessage({ note }) {
                       </div>
                     </div>
 
-                    {/* Message */}
+                    {/* Message textarea */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-amber-700">💬 Your Message</label>
-                      <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4}
+                      <label className="text-[10px] font-black uppercase tracking-widest text-amber-700">
+                        💬 Your Message
+                      </label>
+                      <textarea
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value.slice(0, 500))}
+                        rows={4}
                         placeholder={
-                          type === 'suggestion' ? 'e.g. You could add more examples for topic X...' :
-                          type === 'correction' ? 'e.g. On page 3, the formula should be...' :
-                          type === 'question'   ? 'e.g. Can you explain the concept of...' :
-                          'e.g. Great notes! Really helped me understand...'
+                          type === 'suggestion'   ? 'e.g. You could add more examples for topic X...' :
+                          type === 'correction'   ? 'e.g. On page 3, the formula should be...' :
+                          type === 'question'     ? 'e.g. Can you explain the concept of...' :
+                                                    'e.g. Great notes! Really helped me understand...'
                         }
                         className="w-full rounded-xl border border-amber-500/20 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 resize-none placeholder:text-slate-600"
-                        required />
+                        required
+                      />
                       <p className="text-[10px] text-slate-600 text-right">{message.length}/500</p>
                     </div>
 
-                    {/* Info */}
+                    {/* Info box */}
                     <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 px-4 py-3 text-xs text-indigo-300">
-                      💡 Your message will appear as a comment on the note. The uploader will be notified.
+                      💡 Appears as a comment on the note. Uploader will see it.
                     </div>
 
-                    {/* Buttons */}
+                    {/* Action buttons */}
                     <div className="flex gap-3">
-                      <button type="button" onClick={() => setOpen(false)}
+                      <button
+                        type="button" onClick={() => setOpen(false)}
                         className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-bold text-slate-300 hover:bg-white/10 transition-all">
                         Cancel
                       </button>
-                      <motion.button type="submit" disabled={!message.trim() || loading}
+                      <motion.button
+                        type="submit"
+                        disabled={!message.trim() || loading}
                         whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 py-3 text-sm font-black text-white shadow-[0_4px_20px_rgba(245,158,11,0.4)] disabled:opacity-50">
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 py-3 text-sm font-black text-white shadow-[0_4px_20px_rgba(245,158,11,0.4)] disabled:opacity-50 disabled:cursor-not-allowed">
                         <HiPaperAirplane className="text-sm" />
                         {loading ? 'Sending...' : 'Send +2 XP'}
                       </motion.button>
