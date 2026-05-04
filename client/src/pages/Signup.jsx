@@ -60,7 +60,7 @@ export default function Signup() {
       // Store avatar in localStorage for now (can be saved to profile later)
       if (avatar) {
         localStorage.setItem('nexnote_avatar', avatar);
-        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new Event('nexnote_avatar_changed'));
       }
       login(data);
       addToast('🎉 Character created! Welcome to NEXNOTE!', 'success');

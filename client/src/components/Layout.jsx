@@ -44,17 +44,20 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [avatarStr, setAvatarStr] = useState(() => localStorage.getItem('nexnote_avatar') || '');
 
-  // Listen for avatar changes
+  // Listen for avatar changes - both cross-tab and same-tab
   useEffect(() => {
+    // Re-read on mount in case user just logged in
+    setAvatarStr(localStorage.getItem('nexnote_avatar') || '');
+
     const handler = () => setAvatarStr(localStorage.getItem('nexnote_avatar') || '');
     window.addEventListener('storage', handler);
-    // Also poll every 2s in case same-tab update
-    const interval = setInterval(() => {
-      const current = localStorage.getItem('nexnote_avatar') || '';
-      setAvatarStr(prev => prev !== current ? current : prev);
-    }, 2000);
-    return () => { window.removeEventListener('storage', handler); clearInterval(interval); };
-  }, []);
+    window.addEventListener('nexnote_avatar_changed', handler);
+
+    return () => {
+      window.removeEventListener('storage', handler);
+      window.removeEventListener('nexnote_avatar_changed', handler);
+    };
+  }, [user?._id]); // re-run when user changes (login/logout)
 
   const points = user?.points || 0;
   const rank   = getRank(points);

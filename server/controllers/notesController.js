@@ -61,7 +61,11 @@ export const uploadNote = async (req, res) => {
       io.emit('noteUploaded', { total: await Note.countDocuments() });
     }
 
-    res.status(201).json(note);
+    // Return note + updated user points so frontend can update XP display
+    res.status(201).json({
+      ...note.toObject(),
+      _userPoints: req.user.points,   // ← send updated points back
+    });
   } catch (error) {
     console.error('Upload error:', error.message);
     res.status(500).json({ message: error.message || 'Server error' });

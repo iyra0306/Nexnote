@@ -16,7 +16,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 const FILE_EMOJI = { pdf: '📕', doc: '📘', docx: '📗' };
 
 export default function NoteCard({ note, onDelete, onUpdate }) {
-  const { user }    = useAuth();
+  const { user, syncPoints, refreshUser } = useAuth();
   const { addToast } = useToast();
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment]     = useState('');
@@ -47,6 +47,9 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
       window.URL.revokeObjectURL(url);
       addToast('Download started! +5 XP', 'success');
       showXP('+5 XP');
+      // Award +5 XP locally (server tracks downloads but doesn't award XP for downloads)
+      const stored = JSON.parse(localStorage.getItem('nexnote_user') || '{}');
+      if (stored.points !== undefined) syncPoints((stored.points || 0) + 5);
     } catch { addToast('Download failed', 'error'); }
     finally { setDownloading(false); }
   };
@@ -70,6 +73,7 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
       setLocalNote(data); setNewComment('');
       addToast('Comment posted! +2 XP', 'success');
       showXP('+2 XP');
+      if (data._userPoints !== undefined) syncPoints(data._userPoints);
       if (onUpdate) onUpdate(data);
     } catch (err) { addToast(err.response?.data?.message || 'Failed to add comment', 'error'); }
   };
@@ -90,6 +94,7 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
       setLocalNote({ ...localNote, averageRating: data.averageRating });
       addToast('Rating submitted! +3 XP', 'success');
       showXP('+3 XP');
+      if (data._userPoints !== undefined) syncPoints(data._userPoints);
     } catch { addToast('Failed to submit rating', 'error'); }
   };
 

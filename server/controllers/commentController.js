@@ -15,11 +15,15 @@ export const addComment = async (req, res) => {
     note.comments.push({ user: req.user._id, text: text.trim() });
     await note.save();
 
+    // Award +2 XP for commenting
+    req.user.points = (req.user.points || 0) + 2;
+    await req.user.save();
+
     const updated = await Note.findById(req.params.id)
       .populate('comments.user', 'name email avatar')
       .populate('uploadedBy', 'name email');
 
-    res.status(201).json(updated);
+    res.status(201).json({ ...updated.toObject(), _userPoints: req.user.points });
   } catch (error) {
     res.status(500).json({ message: error.message || 'Server error' });
   }
@@ -75,7 +79,14 @@ export const addRating = async (req, res) => {
     }
 
     await note.save();
-    res.json({ message: 'Rating saved', averageRating: note.averageRating });
+
+    // Award +3 XP for rating (only if new rating, not update)
+    if (!existing) {
+      req.user.points = (req.user.points || 0) + 3;
+      await req.user.save();
+    }
+
+    res.json({ message: 'Rating saved', averageRating: note.averageRating, _userPoints: req.user.points });
   } catch (error) {
     res.status(500).json({ message: error.message || 'Server error' });
   }

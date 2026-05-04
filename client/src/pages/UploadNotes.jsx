@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { HiOutlineCloudArrowUp } from 'react-icons/hi2';
 import { notesAPI } from '../api/api';
 import { useToast } from '../components/Toast';
+import { useAuth } from '../context/AuthContext';
 
 const departments   = ['CSE', 'ECE', 'Mechanical', 'Civil', 'IT', 'EEE', 'Chemical', 'Biotechnology', 'Other'];
 const semesters     = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -21,6 +22,7 @@ export default function UploadNotes() {
   const [dragActive, setDragActive]             = useState(false);
   const [xpEarned, setXpEarned]                 = useState(false);
   const { addToast } = useToast();
+  const { syncPoints, refreshUser } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,8 +39,14 @@ export default function UploadNotes() {
       if (examTags.length > 0) formData.append('examTags', JSON.stringify(examTags));
       if (syllabusUnit)        formData.append('syllabusUnit', syllabusUnit);
       formData.append('file', file);
-      await notesAPI.upload(formData);
+      const { data } = await notesAPI.upload(formData);
       addToast('⚔️ Scroll uploaded! +10 XP earned!', 'success');
+      // Sync points - use server value if available, else refresh from server
+      if (data._userPoints !== undefined) {
+        syncPoints(data._userPoints);
+      } else {
+        refreshUser(); // fallback: fetch fresh user data
+      }
       setXpEarned(true);
       setTimeout(() => setXpEarned(false), 3000);
       setTitle(''); setSubject(''); setDepartment(''); setSemester('');

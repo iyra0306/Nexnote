@@ -174,8 +174,7 @@ export default function Profile() {
           <AvatarBuilder value={localAvatar} onChange={(val) => {
             setLocalAvatar(val);
             localStorage.setItem('nexnote_avatar', val);
-            // Trigger storage event for Layout to pick up
-            window.dispatchEvent(new Event('storage'));
+            window.dispatchEvent(new Event('nexnote_avatar_changed'));
           }} />
           <motion.button onClick={() => setEditingAvatar(false)}
             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}

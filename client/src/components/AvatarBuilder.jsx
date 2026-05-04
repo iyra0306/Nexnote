@@ -1,14 +1,14 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// DiceBear 9.x API - generates real cartoon avatars
+// DiceBear 9.x - correct API URL
 function buildUrl(seed, style, bg, size) {
   const s = style || "avataaars";
   const b = bg || "b6e3f4,c0aede";
-  return `https://api.dicebear.com/9.x/${s}/svg?seed=${encodeURIComponent(seed || "Scholar")}&size=${size || 200}&backgroundColor=${encodeURIComponent(b)}&backgroundType=gradientLinear`;
+  const sz = size || 200;
+  return `https://api.dicebear.com/9.x/${s}/svg?seed=${encodeURIComponent(seed || "Scholar")}&size=${sz}&backgroundColor=${encodeURIComponent(b)}&backgroundType=gradientLinear`;
 }
 
-// Preset seeds - each gives a unique cartoon character
 const PRESET_SEEDS = [
   "Iyra","Neeti","Manleen","Eknoor","Scholar","Hero","Wizard","Knight",
   "Archer","Mage","Rogue","Paladin","Druid","Bard","Ranger","Monk",
@@ -61,91 +61,108 @@ export function parseAvatar(str) {
   try { return JSON.parse(str); } catch { return null; }
 }
 
-// Fallback SVG avatar when API is unavailable
-function FallbackAvatar({ name, size }) {
-  const colors = ["#f59e0b","#8b5cf6","#06b6d4","#10b981","#ec4899","#ef4444","#3b82f6"];
-  const color = colors[(name?.charCodeAt(0) || 0) % colors.length];
+// Colored initial fallback
+function InitialAvatar({ name, size }) {
+  const colors = ["#f59e0b","#8b5cf6","#06b6d4","#10b981","#ec4899","#ef4444","#3b82f6","#f97316"];
+  const color = colors[(name?.charCodeAt(0) || 65) % colors.length];
   return (
-    <div className="w-full h-full flex items-center justify-center font-black text-white"
-      style={{ background: `linear-gradient(135deg, ${color}, ${color}99)`, fontSize: size * 0.4 }}>
+    <div style={{
+      width: "100%", height: "100%",
+      background: `linear-gradient(135deg, ${color}, ${color}88)`,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: size * 0.38, fontWeight: 900, color: "white",
+    }}>
       {name?.[0]?.toUpperCase() || "?"}
     </div>
   );
 }
 
+// AvatarDisplay - shows the saved avatar everywhere
 export function AvatarDisplay({ avatarStr, name = "U", size = "md" }) {
-  const parts = parseAvatar(avatarStr);
-  const px = { sm: 40, md: 64, lg: 96, xl: 128 }[size] || 64;
+  const px  = { sm: 40, md: 64, lg: 96, xl: 128 }[size] || 64;
   const cls = { sm: "h-10 w-10", md: "h-16 w-16", lg: "h-24 w-24", xl: "h-32 w-32" }[size];
-  const [err, setErr] = useState(false);
+  const [imgSrc, setImgSrc] = useState("");
+  const [failed, setFailed] = useState(false);
 
-  useEffect(() => { setErr(false); }, [avatarStr]);
-
-  if (!parts?.seed) {
-    return (
-      <div className={`${cls} rounded-2xl overflow-hidden border-2 border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.3)]`}>
-        <FallbackAvatar name={name} size={px} />
-      </div>
-    );
-  }
-
-  const url = buildUrl(parts.seed, parts.style, parts.bg, px * 2);
+  useEffect(() => {
+    const parts = parseAvatar(avatarStr);
+    if (parts?.seed) {
+      const url = buildUrl(parts.seed, parts.style, parts.bg, px * 2);
+      setImgSrc(url);
+      setFailed(false);
+    } else {
+      setImgSrc("");
+      setFailed(false);
+    }
+  }, [avatarStr, px]);
 
   return (
-    <div className={`${cls} rounded-2xl overflow-hidden border-2 border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.3)] bg-slate-900`}>
-      {!err ? (
-        <img src={url} alt="Avatar" className="w-full h-full object-cover"
-          onError={() => setErr(true)} />
+    <div className={`${cls} rounded-2xl overflow-hidden border-2 border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.3)] bg-slate-900 flex-shrink-0`}>
+      {imgSrc && !failed ? (
+        <img
+          src={imgSrc}
+          alt="Avatar"
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          onError={() => setFailed(true)}
+        />
       ) : (
-        <FallbackAvatar name={name} size={px} />
+        <InitialAvatar name={name} size={px} />
       )}
     </div>
   );
 }
 
+// Main AvatarBuilder component
 export default function AvatarBuilder({ value, onChange }) {
   const initial = parseAvatar(value) || { seed: "Scholar", style: "avataaars", bg: "b6e3f4,c0aede" };
   const [parts, setParts]           = useState(initial);
   const [activeTab, setActiveTab]   = useState("preset");
   const [customSeed, setCustomSeed] = useState(initial.seed || "");
-  const [previewErr, setPreviewErr] = useState(false);
+  const [previewSrc, setPreviewSrc] = useState("");
+  const [previewFailed, setPreviewFailed] = useState(false);
+
+  // Update preview URL whenever parts change
+  useEffect(() => {
+    const url = buildUrl(parts.seed, parts.style, parts.bg, 300);
+    setPreviewSrc(url);
+    setPreviewFailed(false);
+  }, [parts]);
 
   const update = useCallback((key, val) => {
     const next = { ...parts, [key]: val };
     setParts(next);
     onChange(buildAvatarString(next));
-    setPreviewErr(false);
   }, [parts, onChange]);
 
   const randomize = () => {
-    const seed  = PRESET_SEEDS[Math.floor(Math.random() * PRESET_SEEDS.length)];
-    const style = STYLES[Math.floor(Math.random() * STYLES.length)].id;
-    const bg    = BG_COLORS[Math.floor(Math.random() * BG_COLORS.length)].id;
+    const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    const seed  = rand(PRESET_SEEDS);
+    const style = rand(STYLES).id;
+    const bg    = rand(BG_COLORS).id;
     const next  = { seed, style, bg };
     setParts(next);
     setCustomSeed(seed);
     onChange(buildAvatarString(next));
-    setPreviewErr(false);
   };
-
-  const previewUrl = buildUrl(parts.seed, parts.style, parts.bg, 300);
 
   return (
     <div className="space-y-4">
       {/* Preview + Randomize */}
       <div className="flex items-center gap-5">
         <div className="relative flex-shrink-0">
-          <motion.div key={previewUrl}
-            initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="h-28 w-28 rounded-3xl overflow-hidden border-2 border-amber-500/40 shadow-[0_0_30px_rgba(245,158,11,0.4)] bg-slate-900">
-            {!previewErr ? (
-              <img src={previewUrl} alt="Avatar preview" className="w-full h-full object-cover"
-                onError={() => setPreviewErr(true)} />
+          <div className="h-28 w-28 rounded-3xl overflow-hidden border-2 border-amber-500/40 shadow-[0_0_30px_rgba(245,158,11,0.4)] bg-slate-900">
+            {previewSrc && !previewFailed ? (
+              <img
+                key={previewSrc}
+                src={previewSrc}
+                alt="Avatar preview"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                onError={() => setPreviewFailed(true)}
+              />
             ) : (
-              <FallbackAvatar name={parts.seed} size={112} />
+              <InitialAvatar name={parts.seed} size={112} />
             )}
-          </motion.div>
+          </div>
           <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 blur-md -z-10" />
         </div>
         <div className="flex-1 space-y-2">
@@ -154,7 +171,7 @@ export default function AvatarBuilder({ value, onChange }) {
           <p className="text-xs text-slate-500">Style: <span className="text-amber-400 font-bold">{parts.style}</span></p>
           <motion.button onClick={randomize} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
             className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs font-black text-amber-400 hover:bg-amber-500/20 transition-all">
-            �� Random Character
+            🎲 Random Character
           </motion.button>
         </div>
       </div>
@@ -179,35 +196,35 @@ export default function AvatarBuilder({ value, onChange }) {
           exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.15 }}
           className="rounded-2xl border border-amber-500/10 bg-[#0a0a1a] p-4">
 
-          {/* PRESET TAB */}
           {activeTab === "preset" && (
             <div className="space-y-3">
               <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Pick a character</p>
               <div className="grid grid-cols-4 gap-2 max-h-52 overflow-y-auto pr-1">
-                {PRESET_SEEDS.map(seed => {
-                  const url = buildUrl(seed, parts.style, parts.bg, 80);
-                  return (
-                    <motion.button key={seed} onClick={() => { update("seed", seed); setCustomSeed(seed); }}
-                      whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}
-                      className={`relative rounded-2xl overflow-hidden border-2 transition-all aspect-square bg-slate-900 ${
-                        parts.seed === seed
-                          ? "border-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.5)]"
-                          : "border-transparent hover:border-amber-500/40"
-                      }`}>
-                      <img src={url} alt={seed} className="w-full h-full object-cover" />
-                      {parts.seed === seed && (
-                        <div className="absolute bottom-0 inset-x-0 bg-amber-500/80 py-0.5">
-                          <span className="text-[7px] font-black text-white block text-center truncate px-1">{seed}</span>
-                        </div>
-                      )}
-                    </motion.button>
-                  );
-                })}
+                {PRESET_SEEDS.map(seed => (
+                  <motion.button key={seed} onClick={() => { update("seed", seed); setCustomSeed(seed); }}
+                    whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}
+                    className={`relative rounded-2xl overflow-hidden border-2 transition-all bg-slate-900 ${
+                      parts.seed === seed
+                        ? "border-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.5)]"
+                        : "border-transparent hover:border-amber-500/40"
+                    }`}
+                    style={{ aspectRatio: "1" }}>
+                    <img
+                      src={buildUrl(seed, parts.style, parts.bg, 80)}
+                      alt={seed}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                    {parts.seed === seed && (
+                      <div className="absolute bottom-0 inset-x-0 bg-amber-500/90 py-0.5">
+                        <span className="text-[7px] font-black text-white block text-center truncate px-1">{seed}</span>
+                      </div>
+                    )}
+                  </motion.button>
+                ))}
               </div>
             </div>
           )}
 
-          {/* STYLE TAB */}
           {activeTab === "style" && (
             <div className="space-y-3">
               <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Avatar style</p>
@@ -222,7 +239,7 @@ export default function AvatarBuilder({ value, onChange }) {
                     }`}>
                     <div className="h-10 w-10 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0">
                       <img src={buildUrl(parts.seed || "Scholar", s.id, parts.bg, 80)} alt={s.label}
-                        className="w-full h-full object-cover"
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                         onError={(e) => { e.target.style.display="none"; e.target.parentElement.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px">${s.emoji}</div>`; }} />
                     </div>
                     <div className="text-left flex-1">
@@ -235,7 +252,6 @@ export default function AvatarBuilder({ value, onChange }) {
             </div>
           )}
 
-          {/* BG TAB */}
           {activeTab === "bg" && (
             <div className="space-y-3">
               <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Background</p>
@@ -255,7 +271,6 @@ export default function AvatarBuilder({ value, onChange }) {
             </div>
           )}
 
-          {/* CUSTOM TAB */}
           {activeTab === "custom" && (
             <div className="space-y-4">
               <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Custom seed</p>
@@ -276,7 +291,7 @@ export default function AvatarBuilder({ value, onChange }) {
                 <div className="flex justify-center">
                   <div className="h-20 w-20 rounded-2xl overflow-hidden border-2 border-amber-500/30 bg-slate-900">
                     <img src={buildUrl(customSeed.trim(), parts.style, parts.bg, 160)} alt="preview"
-                      className="w-full h-full object-cover" />
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                   </div>
                 </div>
               )}

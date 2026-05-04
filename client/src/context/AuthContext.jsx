@@ -1,47 +1,40 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext(null);
+const API_URL = import.meta.env?.VITE_API_URL || 'http://localhost:5001/api';
 
-// Decode JWT payload without verifying (client-side only for expiry check)
 const getTokenExpiry = (token) => {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.exp * 1000; // convert to ms
-  } catch {
-    return null;
-  }
+    return payload.exp * 1000;
+  } catch { return null; }
 };
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser]       = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const stored = localStorage.getItem('nexnote_user');
-    const token = localStorage.getItem('token');
+    const token  = localStorage.getItem('token');
     if (stored && token) {
-      // Check if token is expired
       const expiry = getTokenExpiry(token);
       if (expiry && Date.now() > expiry) {
-        // Token expired - clear storage
         localStorage.removeItem('nexnote_user');
         localStorage.removeItem('token');
       } else {
-        try {
-          setUser(JSON.parse(stored));
-        } catch {
-          localStorage.removeItem('nexnote_user');
-        }
+        try { setUser(JSON.parse(stored)); }
+        catch { localStorage.removeItem('nexnote_user'); }
       }
     }
     setLoading(false);
   }, []);
 
   const login = (userData) => {
-    const { token, ...userInfo } = userData;
     setUser(userData);
     localStorage.setItem('nexnote_user', JSON.stringify(userData));
-    if (token) localStorage.setItem('token', token);
+    if (userData.token) localStorage.setItem('token', userData.token);
   };
 
   const logout = () => {
@@ -51,13 +44,42 @@ export function AuthProvider({ children }) {
   };
 
   const updateUser = (userData) => {
-    const updated = { ...user, ...userData };
-    setUser(updated);
-    localStorage.setItem('nexnote_user', JSON.stringify(updated));
+    setUser(prev => {
+      const updated = { ...prev, ...userData };
+      localStorage.setItem('nexnote_user', JSON.stringify(updated));
+      return updated;
+    });
   };
 
+  // Update points immediately in UI - uses functional update to avoid stale closure
+  const syncPoints = (newPoints) => {
+    if (typeof newPoints !== 'number') return;
+    setUser(prev => {
+      if (!prev) return prev;
+      const updated = { ...prev, points: newPoints };
+      localStorage.setItem('nexnote_user', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // Fetch fresh user data from server (latest points, badges etc)
+  const refreshUser = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const { data } = await axios.get(`${API_URL}/users/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUser(prev => {
+        const updated = { ...prev, ...data, token: prev?.token };
+        localStorage.setItem('nexnote_user', JSON.stringify(updated));
+        return updated;
+      });
+    } catch { /* silent */ }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, updateUser, syncPoints, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
