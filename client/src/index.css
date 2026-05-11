@@ -2,78 +2,186 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Vibrant Theme Variables ── */
+/* ── RPG Color System ── */
 :root {
-  --bg: #0f0f23;
-  --card: #16162a;
-  --border: rgba(255,255,255,0.07);
-  --v1: #7c3aed;
-  --v2: #db2777;
-  --v3: #0891b2;
-  --v4: #059669;
+  --bg-void:    #020408;
+  --bg-deep:    #060d14;
+  --bg-panel:   #0a1520;
+  --bg-card:    #0d1e2e;
+  --teal:       #00d4aa;
+  --teal-dim:   #00a882;
+  --gold:       #f0b429;
+  --gold-dim:   #c8941a;
+  --emerald:    #00e676;
+  --crimson:    #ff4757;
+  --sapphire:   #2979ff;
+  --amethyst:   #aa00ff;
+  --border-dim: rgba(0,212,170,0.08);
+  --border:     rgba(0,212,170,0.18);
+  --border-bright: rgba(0,212,170,0.4);
 }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: linear-gradient(#7c3aed, #db2777); border-radius: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-void); }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #00d4aa, #f0b429); border-radius: 10px; }
 
 /* ── Gradient texts ── */
-.g-text { background: linear-gradient(135deg, #7c3aed, #db2777); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.g-text-2 { background: linear-gradient(135deg, #0891b2, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.g-text-3 { background: linear-gradient(135deg, #059669, #0891b2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.gradient-text-gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.gradient-text-cyber { background: linear-gradient(135deg, #7c3aed, #db2777); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.text-gradient { background: linear-gradient(135deg, #7c3aed, #db2777); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.text-teal    { color: #00d4aa; }
+.text-gold    { color: #f0b429; }
+.text-emerald { color: #00e676; }
+.text-crimson { color: #ff4757; }
 
-/* ── Cards ── */
-.card { background: #16162a; border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; }
-.card-hover { transition: all 0.25s ease; }
-.card-hover:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.3); }
+.g-teal   { background: linear-gradient(135deg, #00d4aa, #00a882); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.g-gold   { background: linear-gradient(135deg, #f0b429, #ff8c00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.g-epic   { background: linear-gradient(135deg, #00d4aa 0%, #f0b429 50%, #ff4757 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.g-aurora { background: linear-gradient(135deg, #00d4aa, #2979ff, #aa00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
-/* ── Gradient buttons ── */
-.btn-primary { background: linear-gradient(135deg, #7c3aed, #db2777); color: white; font-weight: 700; border-radius: 12px; transition: all 0.2s; }
-.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 25px rgba(124,58,237,0.4); }
+/* Keep old class names working */
+.gradient-text-gold  { background: linear-gradient(135deg, #f0b429, #ff8c00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.gradient-text-cyber { background: linear-gradient(135deg, #00d4aa, #2979ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.text-gradient       { background: linear-gradient(135deg, #00d4aa, #f0b429); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.g-text              { background: linear-gradient(135deg, #00d4aa, #f0b429); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
-/* ── Glow ── */
-.glow-v { box-shadow: 0 0 30px rgba(124,58,237,0.3); }
-.glow-gold { box-shadow: 0 0 20px rgba(251,191,36,0.4); }
-
-/* ── Animations ── */
-@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-.float { animation: float 4s ease-in-out infinite; }
-
-@keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.rank-ring { animation: spin-slow 12s linear infinite; }
-
-@keyframes pulse-ring { 0%,100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.04); } }
-.pulse-glow { animation: pulse-ring 2s ease-in-out infinite; }
-
-@keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-.shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent); background-size: 200% auto; animation: shimmer 2.5s linear infinite; }
-
-@keyframes xp-fill { from { width: 0%; } to { width: var(--xp-width, 60%); } }
-.xp-bar { animation: xp-fill 1.2s cubic-bezier(.4,0,.2,1) forwards; }
-
-@keyframes badge-shine { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-.badge-shine { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); background-size: 200% auto; animation: badge-shine 2.5s linear infinite; }
-
-/* ── Mesh gradient bg ── */
-.mesh-bg {
-  background-color: #0f0f23;
+/* ── Hex pattern background ── */
+.hex-bg {
+  background-color: var(--bg-void);
   background-image:
-    radial-gradient(at 20% 20%, rgba(124,58,237,0.12) 0px, transparent 50%),
-    radial-gradient(at 80% 10%, rgba(219,39,119,0.08) 0px, transparent 50%),
-    radial-gradient(at 50% 80%, rgba(8,145,178,0.08) 0px, transparent 50%);
+    radial-gradient(at 15% 15%, rgba(0,212,170,0.07) 0px, transparent 55%),
+    radial-gradient(at 85% 85%, rgba(240,180,41,0.05) 0px, transparent 55%),
+    radial-gradient(at 50% 50%, rgba(41,121,255,0.04) 0px, transparent 55%);
 }
 
-/* ── Dot pattern ── */
-.dot-bg {
-  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
-  background-size: 24px 24px;
+/* ── Grid lines ── */
+.grid-lines {
+  background-image:
+    linear-gradient(rgba(0,212,170,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,170,0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
-/* ── Tag pill ── */
-.tag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
+/* ── Scanlines overlay ── */
+.scanlines::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
 
+/* ── RPG Cards ── */
+.rpg-card {
+  background: linear-gradient(135deg, rgba(13,30,46,0.95), rgba(6,13,20,0.98));
+  border: 1px solid rgba(0,212,170,0.12);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.rpg-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,170,0.4), transparent);
+}
+.rpg-card:hover {
+  border-color: rgba(0,212,170,0.25);
+  box-shadow: 0 0 30px rgba(0,212,170,0.08), 0 8px 32px rgba(0,0,0,0.6);
+  transform: translateY(-2px);
+}
+.rpg-card { transition: all 0.25s ease; }
+
+/* ── Teal glow ── */
+.glow-teal   { box-shadow: 0 0 20px rgba(0,212,170,0.35), 0 0 60px rgba(0,212,170,0.1); }
+.glow-gold   { box-shadow: 0 0 20px rgba(240,180,41,0.35), 0 0 60px rgba(240,180,41,0.1); }
+.glow-crimson{ box-shadow: 0 0 20px rgba(255,71,87,0.35); }
+
+/* ── Teal border glow ── */
+.border-teal { border: 1px solid rgba(0,212,170,0.3); box-shadow: 0 0 12px rgba(0,212,170,0.15), inset 0 0 12px rgba(0,212,170,0.03); }
+.border-gold { border: 1px solid rgba(240,180,41,0.3); box-shadow: 0 0 12px rgba(240,180,41,0.15), inset 0 0 12px rgba(240,180,41,0.03); }
+
+/* ── Animated teal pulse ── */
+@keyframes teal-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(0,212,170,0.3); }
+  50%       { box-shadow: 0 0 20px rgba(0,212,170,0.6), 0 0 40px rgba(0,212,170,0.2); }
+}
+.pulse-teal { animation: teal-pulse 2.5s ease-in-out infinite; }
+
+/* ── Gold shimmer ── */
+@keyframes gold-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.gold-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(240,180,41,0.3), transparent);
+  background-size: 200% auto;
+  animation: gold-shimmer 2.5s linear infinite;
+}
+
+/* ── XP bar ── */
+@keyframes xp-fill { from { width: 0%; } to { width: var(--xp-width, 60%); } }
+.xp-bar { animation: xp-fill 1.4s cubic-bezier(.4,0,.2,1) forwards; }
+
+/* ── Rank ring ── */
+@keyframes rank-rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.rank-ring { animation: rank-rotate 12s linear infinite; }
+
+/* ── Float ── */
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.float { animation: float 5s ease-in-out infinite; }
+
+/* ── Badge shine ── */
+@keyframes badge-shine { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+.badge-shine { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent); background-size: 200% auto; animation: badge-shine 2.5s linear infinite; }
+
+/* ── Smooth scroll ── */
 * { scroll-behavior: smooth; }
+
+/* ── Quest card ── */
+.quest-card:hover { border-color: rgba(0,212,170,0.3); box-shadow: 0 0 20px rgba(0,212,170,0.08); }
+
+/* ── Rarity colors ── */
+.rarity-common   { color: #94a3b8; border-color: rgba(148,163,184,0.3); }
+.rarity-uncommon { color: #00e676; border-color: rgba(0,230,118,0.3); }
+.rarity-rare     { color: #2979ff; border-color: rgba(41,121,255,0.3); }
+.rarity-epic     { color: #aa00ff; border-color: rgba(170,0,255,0.3); }
+.rarity-legendary{ color: #f0b429; border-color: rgba(240,180,41,0.3); }
+
+/* ── Corner brackets ── */
+.bracket-tl::before, .bracket-br::after {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  border-color: rgba(0,212,170,0.5);
+  border-style: solid;
+}
+.bracket-tl::before { top: 6px; left: 6px; border-width: 1px 0 0 1px; }
+.bracket-br::after  { bottom: 6px; right: 6px; border-width: 0 1px 1px 0; }
+
+/* ── HUD element ── */
+.hud {
+  background: rgba(6,13,20,0.9);
+  border: 1px solid rgba(0,212,170,0.15);
+  backdrop-filter: blur(16px);
+}
+
+/* ── Stat bar ── */
+.stat-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #00d4aa, #00e676);
+  box-shadow: 0 0 6px rgba(0,212,170,0.5);
+}
