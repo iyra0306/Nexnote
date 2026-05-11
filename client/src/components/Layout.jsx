@@ -6,31 +6,31 @@ import {
   HiOutlineHeart, HiOutlineChartBar, HiOutlineInformationCircle,
   HiOutlineArrowRightOnRectangle, HiOutlineUser, HiBars3, HiXMark,
   HiOutlineMegaphone, HiOutlineEnvelope, HiOutlineTrophy,
-  HiOutlineFire, HiOutlineStar,
+  HiOutlineFire, HiOutlineBolt,
 } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 import { AvatarDisplay } from './AvatarBuilder';
 import NexusAI from './NexusAI';
 
 const navItems = [
-  { path: '/dashboard',     label: 'Home Base',     icon: HiOutlineHome,              roles: ['student','teacher','admin'], xp: '🏠' },
-  { path: '/upload',        label: 'Upload Quest',  icon: HiOutlineCloudArrowUp,      roles: ['teacher','admin'],           xp: '⚔️' },
-  { path: '/notes',         label: 'Note Library',  icon: HiOutlineDocumentText,      roles: ['student','teacher','admin'], xp: '📚' },
-  { path: '/favorites',     label: 'Saved Loot',    icon: HiOutlineHeart,             roles: ['student','teacher','admin'], xp: '💎' },
-  { path: '/analytics',     label: 'Stats Board',   icon: HiOutlineChartBar,          roles: ['teacher','admin'],           xp: '📊' },
-  { path: '/announcements', label: 'Guild Chat',    icon: HiOutlineMegaphone,         roles: ['student','teacher','admin'], xp: '📣' },
-  { path: '/profile',       label: 'My Character',  icon: HiOutlineUser,              roles: ['student','teacher','admin'], xp: '🧙' },
-  { path: '/about',         label: 'About',         icon: HiOutlineInformationCircle, roles: ['student','teacher','admin'], xp: 'ℹ️' },
-  { path: '/contact',       label: 'Contact',       icon: HiOutlineEnvelope,          roles: ['student','teacher','admin'], xp: '✉️' },
+  { path: '/dashboard',     label: 'Home Base',    icon: HiOutlineHome,              roles: ['student','teacher','admin'], color: '#00f5ff' },
+  { path: '/upload',        label: 'Upload Quest', icon: HiOutlineCloudArrowUp,      roles: ['teacher','admin'],           color: '#ffd700' },
+  { path: '/notes',         label: 'Note Library', icon: HiOutlineDocumentText,      roles: ['student','teacher','admin'], color: '#00ff88' },
+  { path: '/favorites',     label: 'Saved Loot',   icon: HiOutlineHeart,             roles: ['student','teacher','admin'], color: '#ff0080' },
+  { path: '/analytics',     label: 'Stats Board',  icon: HiOutlineChartBar,          roles: ['teacher','admin'],           color: '#bf00ff' },
+  { path: '/announcements', label: 'Guild Chat',   icon: HiOutlineMegaphone,         roles: ['student','teacher','admin'], color: '#ff6b35' },
+  { path: '/profile',       label: 'My Character', icon: HiOutlineUser,              roles: ['student','teacher','admin'], color: '#00f5ff' },
+  { path: '/about',         label: 'About',        icon: HiOutlineInformationCircle, roles: ['student','teacher','admin'], color: '#94a3b8' },
+  { path: '/contact',       label: 'Contact',      icon: HiOutlineEnvelope,          roles: ['student','teacher','admin'], color: '#94a3b8' },
 ];
 
 const RANK_LEVELS = [
-  { min: 0,   label: 'Novice',    color: 'text-slate-400',  icon: '🌱' },
-  { min: 50,  label: 'Scholar',   color: 'text-cyan-400',   icon: '📖' },
-  { min: 150, label: 'Adept',     color: 'text-blue-400',   icon: '⚡' },
-  { min: 300, label: 'Expert',    color: 'text-purple-400', icon: '🔮' },
-  { min: 500, label: 'Master',    color: 'text-amber-400',  icon: '👑' },
-  { min: 999, label: 'Legend',    color: 'text-rose-400',   icon: '🌟' },
+  { min: 0,   label: 'Novice',  icon: '🌱', color: '#94a3b8' },
+  { min: 50,  label: 'Scholar', icon: '📖', color: '#00f5ff' },
+  { min: 150, label: 'Adept',   icon: '⚡', color: '#bf00ff' },
+  { min: 300, label: 'Expert',  icon: '🔮', color: '#ff0080' },
+  { min: 500, label: 'Master',  icon: '👑', color: '#ffd700' },
+  { min: 999, label: 'Legend',  icon: '🌟', color: '#ff6b35' },
 ];
 
 function getRank(points = 0) {
@@ -38,65 +38,61 @@ function getRank(points = 0) {
 }
 
 export default function Layout() {
-  const location  = useLocation();
+  const location = useLocation();
   const { user, logout } = useAuth();
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [avatarStr, setAvatarStr] = useState(() => localStorage.getItem('nexnote_avatar') || '');
 
-  // Listen for avatar changes - both cross-tab and same-tab
   useEffect(() => {
-    // Re-read on mount in case user just logged in
     setAvatarStr(localStorage.getItem('nexnote_avatar') || '');
-
     const handler = () => setAvatarStr(localStorage.getItem('nexnote_avatar') || '');
     window.addEventListener('storage', handler);
     window.addEventListener('nexnote_avatar_changed', handler);
-
     return () => {
       window.removeEventListener('storage', handler);
       window.removeEventListener('nexnote_avatar_changed', handler);
     };
-  }, [user?._id]); // re-run when user changes (login/logout)
+  }, [user?._id]);
 
-  const points = user?.points || 0;
-  const rank   = getRank(points);
+  const points  = user?.points || 0;
+  const rank    = getRank(points);
   const nextRank = RANK_LEVELS.find(r => r.min > points) || RANK_LEVELS[RANK_LEVELS.length - 1];
-  const xpPct  = Math.min(100, Math.round((points / nextRank.min) * 100));
+  const xpPct   = Math.min(100, Math.round((points / nextRank.min) * 100));
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
   return (
-    <div className="flex min-h-screen bg-[#0a0a1a] text-slate-100">
+    <div className="flex min-h-screen text-slate-100" style={{ background: '#030308' }}>
+      {/* Scan line */}
+      <div className="scan-line" />
 
       {/* Mobile backdrop */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden" />
+            className="fixed inset-0 z-40 lg:hidden" style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }} />
         )}
       </AnimatePresence>
 
       {/* ── SIDEBAR ── */}
-      <aside className={`fixed lg:relative z-50 w-64 flex flex-col h-screen transition-transform duration-300
-        border-r border-amber-500/10 bg-gradient-to-b from-[#0d0d20] via-[#0f0f25] to-[#0d0d20]
-        shadow-[4px_0_40px_rgba(245,158,11,0.08)]
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <aside className={`fixed lg:relative z-50 w-64 flex flex-col h-screen transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+        style={{ background: 'rgba(8,8,20,0.95)', borderRight: '1px solid rgba(0,245,255,0.08)', backdropFilter: 'blur(20px)' }}>
+
+        {/* Top accent line */}
+        <div className="h-0.5 w-full" style={{ background: 'linear-gradient(90deg, transparent, #00f5ff, #bf00ff, transparent)' }} />
 
         {/* Logo */}
-        <div className="flex items-center justify-between px-5 py-5 border-b border-amber-500/10">
+        <div className="flex items-center justify-between px-5 py-5" style={{ borderBottom: '1px solid rgba(0,245,255,0.06)' }}>
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <img src="/nexnote-logo.png" alt="NEXNOTE" className="h-10 w-auto object-contain rounded-xl"
-                onError={(e) => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }} />
-              <div className="hidden h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-gold">
-                <span className="text-lg font-black text-white">N</span>
-              </div>
-            </div>
+            <img src="/nexnote-logo.png" alt="NEXNOTE" className="h-10 w-auto object-contain rounded-xl"
+              onError={(e) => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }} />
+            <div className="hidden h-10 w-10 items-center justify-center rounded-xl font-black text-white text-lg"
+              style={{ background: 'linear-gradient(135deg, #00f5ff, #bf00ff)' }}>N</div>
             <div>
-              <p className="text-sm font-black tracking-widest text-transparent bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text">NEXNOTE</p>
-              <p className="text-[10px] text-amber-600/70 tracking-wider">STUDY RPG</p>
+              <p className="text-sm font-black tracking-widest gradient-text-cyber">NEXNOTE</p>
+              <p className="text-[9px] tracking-[0.3em] font-bold" style={{ color: 'rgba(0,245,255,0.4)' }}>STUDY RPG</p>
             </div>
           </div>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1.5 rounded-lg hover:bg-white/5">
@@ -105,36 +101,37 @@ export default function Layout() {
         </div>
 
         {/* Player Card */}
-        <div className="mx-3 mt-4 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="relative flex-shrink-0">
-              <AvatarDisplay
-                avatarStr={avatarStr}
-                name={user?.name || 'U'}
-                size="md"
-              />
-              <span className="absolute -bottom-1 -right-1 text-sm">{rank.icon}</span>
+        <div className="mx-3 mt-4 rounded-2xl p-4 relative overflow-hidden"
+          style={{ background: 'rgba(0,245,255,0.04)', border: '1px solid rgba(0,245,255,0.12)' }}>
+          {/* Holographic shimmer */}
+          <div className="absolute inset-0 holo-card rounded-2xl" />
+          <div className="relative">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="relative flex-shrink-0">
+                <AvatarDisplay avatarStr={avatarStr} name={user?.name || 'U'} size="md" />
+                <div className="absolute -bottom-1 -right-1 text-sm">{rank.icon}</div>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-black text-white truncate">{user?.name || 'Player'}</p>
+                <p className="text-[10px] font-bold" style={{ color: rank.color }}>{rank.label}</p>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="text-sm font-black" style={{ color: '#ffd700' }}>{points}</p>
+                <p className="text-[9px] font-bold" style={{ color: 'rgba(255,215,0,0.5)' }}>XP</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-slate-100 truncate">{user?.name || 'Player'}</p>
-              <p className={`text-[10px] font-semibold ${rank.color}`}>{rank.label}</p>
+            {/* XP Bar */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-[9px]" style={{ color: 'rgba(0,245,255,0.4)' }}>
+                <span>XP Progress</span><span>{xpPct}%</span>
+              </div>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                <motion.div initial={{ width: 0 }} animate={{ width: `${xpPct}%` }} transition={{ duration: 1.4, ease: 'easeOut' }}
+                  className="h-full rounded-full"
+                  style={{ background: `linear-gradient(90deg, #00f5ff, ${rank.color})`, boxShadow: `0 0 8px ${rank.color}` }} />
+              </div>
+              <p className="text-[9px]" style={{ color: 'rgba(0,245,255,0.3)' }}>Next: {nextRank.label} ({nextRank.min} XP)</p>
             </div>
-            <div className="ml-auto text-right flex-shrink-0">
-              <p className="text-xs font-black text-amber-400">{points}</p>
-              <p className="text-[10px] text-amber-600">XP</p>
-            </div>
-          </div>
-          {/* XP Bar */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-[10px] text-slate-500">
-              <span>XP Progress</span>
-              <span>{xpPct}%</span>
-            </div>
-            <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
-              <motion.div initial={{ width: 0 }} animate={{ width: `${xpPct}%` }} transition={{ duration: 1.2, ease: 'easeOut' }}
-                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
-            </div>
-            <p className="text-[10px] text-slate-600">Next: {nextRank.label} ({nextRank.min} XP)</p>
           </div>
         </div>
 
@@ -145,88 +142,97 @@ export default function Layout() {
             const active = location.pathname === item.path;
             return (
               <Link key={item.path} to={item.path} onClick={() => setSidebarOpen(false)}
-                className={`group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  active
-                    ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/10 text-amber-300 border border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.15)]'
-                    : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'
-                }`}>
+                className="group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                style={active ? {
+                  background: `${item.color}12`,
+                  border: `1px solid ${item.color}30`,
+                  color: item.color,
+                  boxShadow: `0 0 20px ${item.color}15`,
+                } : {
+                  color: 'rgba(148,163,184,0.7)',
+                  border: '1px solid transparent',
+                }}
+                onMouseEnter={(e) => { if (!active) { e.currentTarget.style.background = `${item.color}08`; e.currentTarget.style.color = item.color; } }}
+                onMouseLeave={(e) => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(148,163,184,0.7)'; } }}>
                 {active && (
-                  <motion.span layoutId="nav-pill"
-                    className="absolute inset-y-1 left-0 w-1 rounded-full bg-gradient-to-b from-amber-400 to-orange-500" />
+                  <motion.div layoutId="nav-pill"
+                    className="absolute inset-y-1 left-0 w-0.5 rounded-full"
+                    style={{ background: item.color, boxShadow: `0 0 8px ${item.color}` }} />
                 )}
-                <span className="text-base">{item.xp}</span>
                 <Icon className="text-base flex-shrink-0" />
-                <span className="flex-1">{item.label}</span>
-                {active && <HiOutlineFire className="text-amber-400 text-sm animate-pulse" />}
+                <span className="flex-1 font-semibold">{item.label}</span>
+                {active && <HiOutlineBolt className="text-xs animate-pulse" />}
               </Link>
             );
           })}
         </nav>
 
         {/* Bottom */}
-        <div className="px-3 py-4 border-t border-amber-500/10 space-y-2">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5">
-            <HiOutlineTrophy className="text-amber-400 text-sm" />
+        <div className="px-3 py-4 space-y-2" style={{ borderTop: '1px solid rgba(0,245,255,0.06)' }}>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'rgba(255,215,0,0.05)', border: '1px solid rgba(255,215,0,0.1)' }}>
+            <HiOutlineTrophy style={{ color: '#ffd700' }} className="text-sm" />
             <span className="text-xs text-slate-400">Daily Streak</span>
-            <span className="ml-auto text-xs font-bold text-amber-400">🔥 {user?.streak || 1}</span>
+            <span className="ml-auto text-xs font-black" style={{ color: '#ffd700' }}>🔥 {user?.streak || 1}</span>
           </div>
           <button onClick={handleLogout}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-400 transition-all hover:bg-red-500/20 hover:text-red-300">
+            className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all"
+            style={{ border: '1px solid rgba(255,0,80,0.2)', background: 'rgba(255,0,80,0.05)', color: 'rgba(255,100,100,0.8)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,0,80,0.12)'; e.currentTarget.style.color = '#ff6464'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,0,80,0.05)'; e.currentTarget.style.color = 'rgba(255,100,100,0.8)'; }}>
             <HiOutlineArrowRightOnRectangle className="text-base" />
             Logout
           </button>
         </div>
+
+        {/* Bottom accent line */}
+        <div className="h-0.5 w-full" style={{ background: 'linear-gradient(90deg, transparent, #bf00ff, #ff0080, transparent)' }} />
       </aside>
 
       {/* ── MAIN ── */}
       <div className="relative flex-1 overflow-hidden">
-        {/* Background */}
+        {/* Background effects */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-20 top-10 h-96 w-96 rounded-full bg-amber-500/5 blur-3xl" />
-          <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-purple-500/5 blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-orange-500/3 blur-3xl" />
+          <div className="absolute -left-20 top-10 h-96 w-96 rounded-full blur-3xl" style={{ background: 'radial-gradient(circle, rgba(0,245,255,0.04), transparent)' }} />
+          <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full blur-3xl" style={{ background: 'radial-gradient(circle, rgba(191,0,255,0.04), transparent)' }} />
+          <div className="absolute inset-0 grid-pattern" />
         </div>
 
         <div className="relative flex h-full flex-col">
           {/* Top bar */}
-          <header className="sticky top-0 z-20 border-b border-amber-500/10 bg-[#0a0a1a]/80 backdrop-blur-xl">
+          <header className="sticky top-0 z-20 backdrop-blur-xl"
+            style={{ borderBottom: '1px solid rgba(0,245,255,0.06)', background: 'rgba(3,3,8,0.85)' }}>
             <div className="flex items-center justify-between px-4 sm:px-8 py-3">
               <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg hover:bg-white/5">
                 <HiBars3 className="text-2xl text-slate-400" />
               </button>
               <div className="flex items-center gap-3">
-                <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1">
-                  <HiOutlineStar className="text-amber-400 text-xs" />
-                  <span className="text-xs text-amber-400 font-semibold">{points} XP</span>
+                <div className="hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1"
+                  style={{ border: '1px solid rgba(255,215,0,0.2)', background: 'rgba(255,215,0,0.06)' }}>
+                  <HiOutlineBolt style={{ color: '#ffd700' }} className="text-xs" />
+                  <span className="text-xs font-black" style={{ color: '#ffd700' }}>{points} XP</span>
                 </div>
-                <div className={`hidden sm:flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/5 px-3 py-1`}>
+                <div className="hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1"
+                  style={{ border: `1px solid ${rank.color}30`, background: `${rank.color}08` }}>
                   <span className="text-sm">{rank.icon}</span>
-                  <span className={`text-xs font-bold ${rank.color}`}>{rank.label}</span>
+                  <span className="text-xs font-black" style={{ color: rank.color }}>{rank.label}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0">
-                  <AvatarDisplay
-                    avatarStr={avatarStr}
-                    name={user?.name || 'U'}
-                    size="sm"
-                  />
-                </div>
+              <div className="flex-shrink-0">
+                <AvatarDisplay avatarStr={avatarStr} name={user?.name || 'U'} size="sm" />
               </div>
             </div>
           </header>
 
           {/* Page content */}
           <motion.main key={location.pathname}
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="flex-1 overflow-auto px-4 py-6 sm:px-8 sm:py-8">
             <Outlet />
           </motion.main>
         </div>
       </div>
 
-      {/* NEXUS AI - Floating on all pages */}
       <NexusAI />
     </div>
   );

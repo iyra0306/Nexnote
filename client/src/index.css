@@ -2,42 +2,223 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Custom Properties ── */
 :root {
-  --xp-gold: #f59e0b;
-  --xp-purple: #8b5cf6;
-  --xp-cyan: #06b6d4;
-  --xp-green: #10b981;
-  --xp-pink: #ec4899;
+  --neon-cyan:   #00f5ff;
+  --neon-purple: #bf00ff;
+  --neon-pink:   #ff0080;
+  --neon-green:  #00ff88;
+  --neon-gold:   #ffd700;
+  --bg-deep:     #030308;
+  --bg-card:     #0a0a18;
+  --bg-glass:    rgba(10,10,30,0.7);
 }
 
 /* ── Scrollbar ── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #0a0a1a; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #030308; }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #f59e0b, #8b5cf6);
-  border-radius: 4px;
+  background: linear-gradient(180deg, #00f5ff, #bf00ff);
+  border-radius: 10px;
 }
 
-/* ── Animated XP bar ── */
+/* ── Gradient texts ── */
+.text-neon-cyan   { color: var(--neon-cyan); }
+.text-neon-purple { color: var(--neon-purple); }
+.text-neon-pink   { color: var(--neon-pink); }
+
+.gradient-text-cyber {
+  background: linear-gradient(135deg, #00f5ff 0%, #bf00ff 50%, #ff0080 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-gold {
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 50%, #ff4500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-aurora {
+  background: linear-gradient(135deg, #00ff88 0%, #00f5ff 40%, #bf00ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glass morphism ── */
+.glass {
+  background: rgba(10, 10, 30, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 245, 255, 0.1);
+}
+.glass-purple {
+  background: rgba(15, 5, 30, 0.7);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(191, 0, 255, 0.15);
+}
+.glass-pink {
+  background: rgba(20, 5, 15, 0.7);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 0, 128, 0.15);
+}
+
+/* ── Neon glows ── */
+.glow-cyan   { box-shadow: 0 0 20px rgba(0,245,255,0.4), 0 0 60px rgba(0,245,255,0.15); }
+.glow-purple { box-shadow: 0 0 20px rgba(191,0,255,0.4), 0 0 60px rgba(191,0,255,0.15); }
+.glow-pink   { box-shadow: 0 0 20px rgba(255,0,128,0.4), 0 0 60px rgba(255,0,128,0.15); }
+.glow-green  { box-shadow: 0 0 20px rgba(0,255,136,0.4), 0 0 60px rgba(0,255,136,0.15); }
+.glow-gold   { box-shadow: 0 0 20px rgba(255,215,0,0.4),  0 0 60px rgba(255,215,0,0.15); }
+
+/* ── Neon borders ── */
+.border-neon-cyan   { border-color: rgba(0,245,255,0.4); }
+.border-neon-purple { border-color: rgba(191,0,255,0.4); }
+.border-neon-pink   { border-color: rgba(255,0,128,0.4); }
+
+/* ── Animated gradient border ── */
+@keyframes border-spin {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animated-border {
+  background: linear-gradient(90deg, #00f5ff, #bf00ff, #ff0080, #00f5ff);
+  background-size: 300% 300%;
+  animation: border-spin 4s ease infinite;
+}
+
+/* ── Scan line effect ── */
+@keyframes scan {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+.scan-line {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0,245,255,0.3), transparent);
+  animation: scan 8s linear infinite;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── Holographic shimmer ── */
+@keyframes holo {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.holo-card {
+  background: linear-gradient(135deg,
+    rgba(0,245,255,0.05) 0%,
+    rgba(191,0,255,0.05) 25%,
+    rgba(255,0,128,0.05) 50%,
+    rgba(0,255,136,0.05) 75%,
+    rgba(0,245,255,0.05) 100%
+  );
+  background-size: 400% 400%;
+  animation: holo 8s ease infinite;
+}
+
+/* ── XP bar ── */
 @keyframes xp-fill {
   from { width: 0%; }
   to   { width: var(--xp-width, 60%); }
 }
-.xp-bar { animation: xp-fill 1.2s cubic-bezier(.4,0,.2,1) forwards; }
+.xp-bar { animation: xp-fill 1.4s cubic-bezier(.4,0,.2,1) forwards; }
 
-/* ── Floating particles ── */
-@keyframes float-up {
-  0%   { transform: translateY(0) scale(1); opacity: 1; }
-  100% { transform: translateY(-60px) scale(0); opacity: 0; }
+/* ── Floating ── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
 }
-.particle { animation: float-up 1.5s ease-out forwards; }
+.float { animation: float 4s ease-in-out infinite; }
 
-/* ── Pulse glow ── */
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(245,158,11,0.4); }
-  50%       { box-shadow: 0 0 40px rgba(245,158,11,0.8), 0 0 60px rgba(245,158,11,0.3); }
+/* ── Pulse ring ── */
+@keyframes pulse-ring {
+  0%   { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
 }
-.glow-gold { animation: pulse-glow 2s ease-in-out infinite; }
+.pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid currentColor;
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* ── Glitch text ── */
+@keyframes glitch1 {
+  0%, 100% { clip-path: inset(0 0 95% 0); transform: translate(-2px, 0); }
+  20%       { clip-path: inset(30% 0 50% 0); transform: translate(2px, 0); }
+  40%       { clip-path: inset(60% 0 20% 0); transform: translate(-1px, 0); }
+  60%       { clip-path: inset(80% 0 5% 0);  transform: translate(1px, 0); }
+  80%       { clip-path: inset(10% 0 80% 0); transform: translate(-2px, 0); }
+}
+.glitch {
+  position: relative;
+}
+.glitch::before, .glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+.glitch::before {
+  color: #00f5ff;
+  animation: glitch1 3s infinite;
+  opacity: 0.7;
+}
+.glitch::after {
+  color: #ff0080;
+  animation: glitch1 3s infinite reverse;
+  opacity: 0.7;
+}
+
+/* ── Rank ring ── */
+@keyframes rank-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.rank-ring { animation: rank-rotate 10s linear infinite; }
+
+/* ── Card hover lift ── */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(0,245,255,0.15);
+}
+
+/* ── Smooth scroll ── */
+* { scroll-behavior: smooth; }
+
+/* ── Grid pattern ── */
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ── Noise texture ── */
+.noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* ── Quest card ── */
+.quest-card:hover {
+  border-color: rgba(0,245,255,0.3);
+  box-shadow: 0 0 30px rgba(0,245,255,0.1);
+}
 
 /* ── Badge shine ── */
 @keyframes badge-shine {
@@ -45,69 +226,7 @@
   100% { background-position: 200% center; }
 }
 .badge-shine {
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
   background-size: 200% auto;
-  animation: badge-shine 2s linear infinite;
-}
-
-/* ── Level up flash ── */
-@keyframes level-flash {
-  0%   { opacity: 0; transform: scale(0.5); }
-  50%  { opacity: 1; transform: scale(1.2); }
-  100% { opacity: 0; transform: scale(1.5); }
-}
-.level-flash { animation: level-flash 0.8s ease-out forwards; }
-
-/* ── Gradient text ── */
-.gradient-text {
-  background: linear-gradient(135deg, #f59e0b 0%, #8b5cf6 50%, #ec4899 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.gradient-text-gold {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ── Glass card ── */
-.glass {
-  background: rgba(10, 10, 26, 0.7);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(245, 158, 11, 0.15);
-}
-
-/* ── Quest card hover ── */
-.quest-card:hover {
-  border-color: rgba(245, 158, 11, 0.4);
-  box-shadow: 0 0 30px rgba(245, 158, 11, 0.15);
-}
-
-/* ── Rank badge ── */
-@keyframes rank-rotate {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-.rank-ring { animation: rank-rotate 8s linear infinite; }
-
-/* ── Star burst ── */
-@keyframes star-burst {
-  0%   { transform: scale(0) rotate(0deg); opacity: 1; }
-  100% { transform: scale(2) rotate(180deg); opacity: 0; }
-}
-.star-burst { animation: star-burst 0.6s ease-out forwards; }
-
-/* ── Smooth scroll ── */
-* { scroll-behavior: smooth; }
-
-/* ── Neon border ── */
-.neon-border-gold {
-  border: 1px solid rgba(245, 158, 11, 0.5);
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2), inset 0 0 10px rgba(245, 158, 11, 0.05);
-}
-.neon-border-purple {
-  border: 1px solid rgba(139, 92, 246, 0.5);
-  box-shadow: 0 0 10px rgba(139, 92, 246, 0.2), inset 0 0 10px rgba(139, 92, 246, 0.05);
+  animation: badge-shine 2.5s linear infinite;
 }
