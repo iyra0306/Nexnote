@@ -12,8 +12,12 @@ import NoteMessage from './NoteMessage';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
-const FILE_COLORS = { pdf: '#ff0080', doc: '#00f5ff', docx: '#00ff88' };
-const FILE_EMOJI  = { pdf: '📕', doc: '📘', docx: '📗' };
+const FILE_EMOJI = { pdf: '📕', doc: '📘', docx: '📗' };
+const FILE_ACCENT = {
+  pdf:  { color: '#ec4899', bg: 'rgba(236,72,153,0.08)',  border: 'rgba(236,72,153,0.2)' },
+  doc:  { color: '#6366f1', bg: 'rgba(99,102,241,0.08)',  border: 'rgba(99,102,241,0.2)' },
+  docx: { color: '#10b981', bg: 'rgba(16,185,129,0.08)',  border: 'rgba(16,185,129,0.2)' },
+};
 
 export default function NoteCard({ note, onDelete, onUpdate }) {
   const { user, syncPoints } = useAuth();
@@ -27,7 +31,7 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
 
   const canDelete = user?.role === 'admin' || user?.role === 'teacher';
   const ext       = (localNote.fileURL || '').split('.').pop()?.toLowerCase();
-  const fileColor = FILE_COLORS[ext] || '#00f5ff';
+  const accent    = FILE_ACCENT[ext] || FILE_ACCENT.doc;
   const fileEmoji = FILE_EMOJI[ext] || '📄';
 
   const showXP = (msg) => { setXpPop(msg); setTimeout(() => setXpPop(null), 1500); };
@@ -41,7 +45,7 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
       const a     = document.createElement('a');
       a.href = url; a.download = note.title; a.click();
       window.URL.revokeObjectURL(url);
-      addToast('Download started! +5 XP', 'success');
+      addToast('Download started! +5 XP ✨', 'success');
       showXP('+5 XP');
       const stored = JSON.parse(localStorage.getItem('nexnote_user') || '{}');
       if (stored.points !== undefined) syncPoints((stored.points || 0) + 5);
@@ -54,9 +58,9 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
       const token = localStorage.getItem('token');
       const { data } = await axios.post(`${API_URL}/users/favorites/${note._id}`, {}, { headers: { Authorization: `Bearer ${token}` } });
       setIsFavorite(data.isFavorite);
-      addToast(data.isFavorite ? '💎 Added to loot! +2 XP' : 'Removed from loot', 'success');
+      addToast(data.isFavorite ? 'Added to favorites! +2 XP' : 'Removed from favorites', 'success');
       if (data.isFavorite) showXP('+2 XP');
-    } catch { addToast('Failed to update favorites', 'error'); }
+    } catch { addToast('Failed', 'error'); }
   };
 
   const handleAddComment = async (e) => {
@@ -78,8 +82,8 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
       const token = localStorage.getItem('token');
       await axios.delete(`${API_URL}/notes/${note._id}/comments/${commentId}`, { headers: { Authorization: `Bearer ${token}` } });
       setLocalNote({ ...localNote, comments: localNote.comments.filter(c => c._id !== commentId) });
-      addToast('Comment deleted', 'success');
-    } catch { addToast('Failed to delete comment', 'error'); }
+      addToast('Deleted', 'success');
+    } catch { addToast('Failed', 'error'); }
   };
 
   const handleRate = async (rating) => {
@@ -87,31 +91,32 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
       const token = localStorage.getItem('token');
       const { data } = await axios.post(`${API_URL}/notes/${note._id}/ratings`, { rating }, { headers: { Authorization: `Bearer ${token}` } });
       setLocalNote({ ...localNote, averageRating: data.averageRating });
-      addToast('Rating submitted! +3 XP', 'success');
+      addToast('Rated! +3 XP', 'success');
       showXP('+3 XP');
       if (data._userPoints !== undefined) syncPoints(data._userPoints);
-    } catch { addToast('Failed to submit rating', 'error'); }
+    } catch { addToast('Failed', 'error'); }
   };
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -6 }}
-      className="group relative flex flex-col rounded-2xl overflow-hidden transition-all duration-300"
-      style={{ background: 'rgba(10,10,24,0.9)', border: `1px solid ${fileColor}18`, boxShadow: `0 4px 30px rgba(0,0,0,0.5)` }}
-      onMouseEnter={(e) => e.currentTarget.style.boxShadow = `0 20px 60px ${fileColor}15, 0 4px 30px rgba(0,0,0,0.5)`}
-      onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 30px rgba(0,0,0,0.5)'}>
+      initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -5 }}
+      className="group relative flex flex-col rounded-2xl overflow-hidden transition-all duration-300 card-lift"
+      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.4)' }}
+      onMouseEnter={(e) => e.currentTarget.style.boxShadow = `0 20px 60px ${accent.color}18, 0 4px 24px rgba(0,0,0,0.4)`}
+      onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.4)'}>
 
-      {/* Top color bar */}
-      <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, transparent, ${fileColor}, transparent)` }} />
+      {/* Gradient top bar */}
+      <div className="h-0.5 w-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        style={{ background: `linear-gradient(90deg, transparent, ${accent.color}, transparent)` }} />
 
       {/* XP Pop */}
       <AnimatePresence>
         {xpPop && (
-          <motion.div initial={{ opacity: 1, y: 0, scale: 1 }} animate={{ opacity: 0, y: -50, scale: 1.2 }}
+          <motion.div initial={{ opacity: 1, y: 0, scale: 1 }} animate={{ opacity: 0, y: -40, scale: 1.1 }}
             exit={{ opacity: 0 }} transition={{ duration: 1 }}
             className="absolute top-3 right-3 z-20 rounded-full px-3 py-1 text-xs font-black text-white pointer-events-none"
-            style={{ background: 'linear-gradient(135deg, #00f5ff, #bf00ff)', boxShadow: '0 0 20px rgba(0,245,255,0.5)' }}>
+            style={{ background: 'linear-gradient(135deg, #6366f1, #ec4899)', boxShadow: '0 4px 15px rgba(99,102,241,0.5)' }}>
             {xpPop}
           </motion.div>
         )}
@@ -119,8 +124,8 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
 
       {/* Exam badge */}
       {localNote.isImportantForExam && (
-        <div className="absolute -top-0 right-4 z-10 rounded-b-xl px-3 py-1 text-[10px] font-black text-white"
-          style={{ background: 'linear-gradient(135deg, #ff0080, #bf00ff)', boxShadow: '0 4px 15px rgba(255,0,128,0.4)' }}>
+        <div className="absolute top-3 left-3 z-10 rounded-full px-2.5 py-1 text-[10px] font-black text-white"
+          style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)', boxShadow: '0 4px 12px rgba(99,102,241,0.4)' }}>
           🎯 EXAM
         </div>
       )}
@@ -128,29 +133,29 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
       <div className="p-5 flex flex-col flex-1">
         {/* Header */}
         <div className="mb-3 flex items-start gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl flex-shrink-0"
-            style={{ background: `${fileColor}12`, border: `1px solid ${fileColor}30` }}>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl text-2xl flex-shrink-0"
+            style={{ background: accent.bg, border: `1px solid ${accent.border}` }}>
             {fileEmoji}
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="truncate text-sm font-black text-white">{localNote.title}</h3>
+            <h3 className="truncate text-sm font-bold text-white">{localNote.title}</h3>
             <p className="mt-0.5 text-xs text-slate-500">{localNote.subject}</p>
             <div className="mt-1.5 flex flex-wrap gap-1">
               {localNote.department && (
-                <span className="rounded-full px-2 py-0.5 text-[10px] font-bold"
-                  style={{ background: 'rgba(0,245,255,0.08)', border: '1px solid rgba(0,245,255,0.2)', color: '#00f5ff' }}>
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                  style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8' }}>
                   {localNote.department}
                 </span>
               )}
               {localNote.semester && (
-                <span className="rounded-full px-2 py-0.5 text-[10px] font-bold"
-                  style={{ background: 'rgba(191,0,255,0.08)', border: '1px solid rgba(191,0,255,0.2)', color: '#bf00ff' }}>
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                  style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)', color: '#c084fc' }}>
                   Sem {localNote.semester}
                 </span>
               )}
               {localNote.examTags?.map(tag => (
-                <span key={tag} className="rounded-full px-2 py-0.5 text-[10px] font-bold"
-                  style={{ background: 'rgba(255,0,128,0.08)', border: '1px solid rgba(255,0,128,0.2)', color: '#ff0080' }}>
+                <span key={tag} className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                  style={{ background: 'rgba(236,72,153,0.1)', border: '1px solid rgba(236,72,153,0.2)', color: '#f472b6' }}>
                   {tag}
                 </span>
               ))}
@@ -158,8 +163,8 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
           </div>
           <button onClick={handleToggleFavorite} className="p-1.5 rounded-lg transition-all flex-shrink-0 hover:scale-110">
             {isFavorite
-              ? <HiHeart className="text-lg" style={{ color: '#ff0080', filter: 'drop-shadow(0 0 6px #ff0080)' }} />
-              : <HiOutlineHeart className="text-lg text-slate-600 hover:text-[#ff0080] transition-colors" />}
+              ? <HiHeart className="text-lg" style={{ color: '#ec4899', filter: 'drop-shadow(0 0 6px #ec4899)' }} />
+              : <HiOutlineHeart className="text-lg text-slate-600 hover:text-[#ec4899] transition-colors" />}
           </button>
         </div>
 
@@ -191,18 +196,18 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
         {/* Actions */}
         <div className="flex gap-2 mb-3">
           <motion.button type="button" onClick={handleDownload} disabled={downloading}
-            whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-black text-white disabled:opacity-60 transition-all"
-            style={{ background: 'linear-gradient(135deg, #00f5ff, #00ff88)', boxShadow: '0 4px 20px rgba(0,245,255,0.3)' }}>
+            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-bold text-white disabled:opacity-60 transition-all"
+            style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)', boxShadow: '0 4px 15px rgba(99,102,241,0.3)' }}>
             <HiOutlineArrowDownTray className="text-sm" />
             {downloading ? 'Downloading…' : 'Download +5XP'}
           </motion.button>
           {canDelete && (
             <button type="button" onClick={() => onDelete(note._id)}
-              className="inline-flex items-center justify-center rounded-xl px-3 py-2.5 text-xs font-bold transition-all"
-              style={{ border: '1px solid rgba(255,0,80,0.3)', background: 'rgba(255,0,80,0.08)', color: '#ff6464' }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,0,80,0.15)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,0,80,0.08)'}>
+              className="inline-flex items-center justify-center rounded-xl px-3 py-2.5 text-xs font-semibold transition-all"
+              style={{ border: '1px solid rgba(239,68,68,0.25)', background: 'rgba(239,68,68,0.06)', color: '#fca5a5' }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.12)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.06)'}>
               <HiOutlineTrash className="text-sm" />
             </button>
           )}
@@ -215,10 +220,7 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
 
         {/* Comments toggle */}
         <button onClick={() => setShowComments(!showComments)}
-          className="text-xs font-bold flex items-center gap-1 transition-colors"
-          style={{ color: 'rgba(0,245,255,0.6)' }}
-          onMouseEnter={(e) => e.currentTarget.style.color = '#00f5ff'}
-          onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(0,245,255,0.6)'}>
+          className="text-xs font-semibold flex items-center gap-1 transition-colors text-slate-600 hover:text-[#a855f7]">
           <HiOutlineChatBubbleLeft className="text-sm" />
           {showComments ? 'Hide' : 'Show'} comments ({localNote.comments?.length || 0})
         </button>
@@ -228,27 +230,27 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
           {showComments && (
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }} className="mt-4 space-y-3 overflow-hidden"
-              style={{ borderTop: '1px solid rgba(0,245,255,0.08)', paddingTop: '1rem' }}>
+              style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
               <form onSubmit={handleAddComment} className="space-y-2">
                 <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Add a comment... (+2 XP)" rows={2}
                   className="w-full rounded-xl px-3 py-2 text-xs text-slate-100 outline-none transition resize-none placeholder:text-slate-600"
-                  style={{ background: 'rgba(0,245,255,0.04)', border: '1px solid rgba(0,245,255,0.12)' }}
-                  onFocus={(e) => e.target.style.borderColor = 'rgba(0,245,255,0.4)'}
-                  onBlur={(e) => e.target.style.borderColor = 'rgba(0,245,255,0.12)'} />
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+                  onFocus={(e) => e.target.style.borderColor = 'rgba(99,102,241,0.4)'}
+                  onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.07)'} />
                 <button type="submit" disabled={!newComment.trim()}
-                  className="w-full rounded-xl px-3 py-1.5 text-xs font-black transition-all disabled:opacity-40"
-                  style={{ background: 'rgba(0,245,255,0.1)', border: '1px solid rgba(0,245,255,0.2)', color: '#00f5ff' }}>
+                  className="w-full rounded-xl px-3 py-1.5 text-xs font-semibold transition-all disabled:opacity-40"
+                  style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8' }}>
                   Post Comment +2 XP
                 </button>
               </form>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {localNote.comments?.map((c) => (
                   <div key={c._id} className="rounded-xl p-3"
-                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
-                        <p className="text-xs font-black text-slate-300">{c.user?.name || 'Anonymous'}</p>
+                        <p className="text-xs font-bold text-slate-300">{c.user?.name || 'Anonymous'}</p>
                         <p className="text-xs text-slate-500 mt-1">{c.text}</p>
                       </div>
                       {(user?._id === c.user?._id || user?.role === 'admin') && (
@@ -266,10 +268,6 @@ export default function NoteCard({ note, onDelete, onUpdate }) {
           )}
         </AnimatePresence>
       </div>
-
-      {/* Bottom accent */}
-      <div className="h-0.5 w-full opacity-0 group-hover:opacity-100 transition-opacity"
-        style={{ background: `linear-gradient(90deg, transparent, ${fileColor}, transparent)` }} />
     </motion.article>
   );
 }
